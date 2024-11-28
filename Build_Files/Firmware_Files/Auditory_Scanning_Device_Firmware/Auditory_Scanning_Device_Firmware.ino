@@ -130,6 +130,42 @@ int current_message {0};
 const int sample_rate {16000};
 const String file_extension {".wav"}; 
 int old_file_level {1};
+const int message_total = 4; // Total number of messages to be stored on any one level
+
+//----------------------------------------------------------------------------------//
+//***SWITCH SCANNING FUNCTION***///
+//
+// This function handles switch scanning through the different messages
+//
+// Parameters   : Void
+// 
+// Return:      : Void
+//
+//-----------------------------------------------------------------------------------//
+
+void switch_scanning(){
+  bool continue_scanning = true;
+  while(continue_scanning){ 
+    play_message();
+    delay(2000); // Set delay at 2 seconds currently, will create function to read delay time later
+    // If a user hits the advance switch, stop playing and go to next message.
+    if(digitalRead(advance_switch_jack) == LOW){
+      //turn speaker off
+      audio.stopPlayback();
+      digitalWrite(speaker_shutdown, LOW);
+      // Advance to the next message. If at the end of the messages, restart at 1.
+      current_message++;
+      if(current_message>message_total){
+          current_message = 1;
+        }
+      }
+      // If a user hits the select switch, repeat the current message.
+    if(digitalRead(select_switch_jack) == LOW){
+        play_message();
+        continue_scanning = false;
+      }
+    }
+}
 
 //-----------------------------------------------------------------------------------//
 //***GET MESSAGE COUNT FUNCTION***///
