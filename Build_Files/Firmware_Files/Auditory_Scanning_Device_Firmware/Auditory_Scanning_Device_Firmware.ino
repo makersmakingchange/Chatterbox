@@ -126,11 +126,11 @@ const int advance_switch_jack {7};
 int file_number =0;
 int file_level {1};
 int old_level = {1};
-int current_message {0};
+int current_message {1};
 const int sample_rate {16000};
 const String file_extension {".wav"}; 
 int old_file_level {1};
-const int message_total = 4; // Total number of messages to be stored on any one level
+const int message_total = 3; // Total number of messages to be stored on any one level
 
 //----------------------------------------------------------------------------------//
 //***SWITCH SCANNING FUNCTION***///
@@ -143,29 +143,37 @@ const int message_total = 4; // Total number of messages to be stored on any one
 //
 //-----------------------------------------------------------------------------------//
 
-void switch_scanning(){
-  bool continue_scanning = true;
-  while(continue_scanning){ 
-    play_message();
-    delay(2000); // Set delay at 2 seconds currently, will create function to read delay time later
-    // If a user hits the advance switch, stop playing and go to next message.
-    if(digitalRead(advance_switch_jack) == LOW){
-      //turn speaker off
-      audio.stopPlayback();
-      digitalWrite(speaker_shutdown, LOW);
-      // Advance to the next message. If at the end of the messages, restart at 1.
-      current_message++;
-      if(current_message>message_total){
-          current_message = 1;
-        }
-      }
-      // If a user hits the select switch, repeat the current message.
-    if(digitalRead(select_switch_jack) == LOW){
-        play_message();
-        continue_scanning = false;
-      }
-    }
-}
+//void switch_scanning(){
+//  bool continue_scanning = true;
+//  while(continue_scanning){ 
+//    // If user has gone through all messages, then stop switch scanning
+//    if(current_message>message_total){
+//      continue_scanning = false;
+//    }
+//    play_message();
+//    delay(2000); // Set delay at 2 seconds currently, will create function to read delay time later
+//    // Advance to the next message
+//    current_message ++;
+//    
+//    // If a user hits the advance switch, stop playing and go to next message.
+//    if(digitalRead(advance_switch_jack) == LOW){
+//      //turn speaker off
+//      audio.stopPlayback();
+//      digitalWrite(speaker_shutdown, LOW);
+//      // Advance to the next message. If at the end of the messages, restart at 1.
+//      current_message++;
+//      if(current_message>message_total){
+//          current_message = 1;
+//        }
+//      }
+//      // If a user hits the select switch, repeat the current message.
+//    if(digitalRead(select_switch_jack) == LOW){
+//        play_message();
+//        continue_scanning = false;
+//      }
+//      return;
+//    }
+//}
 
 //-----------------------------------------------------------------------------------//
 //***GET MESSAGE COUNT FUNCTION***///
@@ -351,6 +359,7 @@ void play_message(){
   #ifdef DEBUG  
   Serial.print("Playing message number ");
   Serial.println(current_message);
+  Serial.println(file);
   #endif
   
   //turn on speaker and play message
@@ -366,7 +375,7 @@ void play_message(){
   }
 
   //turn speaker off
-  audio.stopPlayback();
+//  audio.stopPlayback();
   digitalWrite(speaker_shutdown, LOW);
 
   //prepare next message in queue. Start at beginning if at end of queue
@@ -377,7 +386,7 @@ void play_message(){
   #endif
   if(current_message > file_number){
     current_message = 1;
-  }
+ }
   return;
 }
 
@@ -616,27 +625,45 @@ if(digitalRead(power_switch) == !LOW){
     }
   }
 
-  if(digitalRead(level_button)==LOW){
+  if(digitalRead(level_button) == LOW){
     file_level++;
-  if(file_level>3){
-    file_level=1;
-  }
-  delay(250);
+    if(file_level>3){
+      file_level=1;
+      }
+    delay(250);
   }
 //MESSAGE PLAYBACK
-  if((digitalRead(play_button) == LOW)||(digitalRead(select_switch_jack) == LOW)){
+  if(digitalRead(play_button) == LOW){
     digitalWrite(play_led, HIGH);
     
     //Play message
     play_message();
-   
     //wait until button is lifted
     while(digitalRead(play_button) == LOW){
     }
     digitalWrite(play_led, LOW);
-  }  
-  //turn off playback light
+    }
   
+  //turn off playback light
+
+// SWITCH SCANNING
+//  if(digitalRead(select_switch_jack) == LOW){
+//    bool continue_scanning = true;
+//    digitalWrite(play_led, HIGH);
+//    while(continue_scanning){
+//      play_message();
+//      while(digitalRead(select_switch_jack) == LOW){
+//    }
+//     delay(2000);
+//    current_message++;
+//    if(current_message>file_number){
+//      current_message = 1;
+//      continue_scanning = false;
+//    }
+//     
+//  }
+//   digitalWrite(play_led, LOW);
+//  }
 
 //END OF LOOP
 }
