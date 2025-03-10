@@ -3,6 +3,7 @@
 #include <TMRpcm.h>
 #include <SD.h>
 #include <SPI.h>
+#include <StateMachine.h>
 
 #define DEBUG
 
