@@ -55,6 +55,9 @@ unsigned long previousMillis = 0;
 unsigned long currentMillis = 0;
 int LEDState = LOW;
 int which_switch = -1;
+int previous_file_number = 1; // Store previous file number to check if it's the same switch being pressed again
+bool started_playing = false; // Variable to read if the player has actually started playing a message
+bool play_transition[2] = {false, false};
 
 
 // LED blinking function
@@ -77,6 +80,10 @@ void blink_LED(){
 
 void waiting(){
 // Read inputs, blink LEDs. Make the transition here: check if I have an input, if the audio is playing, etc.
+
+  #ifdef DEBUG
+    Serial.println("Waiting State");
+  #endif
 }
 
 void play_message(){
@@ -101,16 +108,28 @@ void play_message(){
   digitalWrite(speaker_shutdown, HIGH);
 
   #ifdef DEBUG
-  Serial.print("File: ");
-  Serial.println(file);
+    Serial.print("File: ");
+    Serial.println(file);
+    Serial.print("File Number: ");
+    Serial.print(file_number);
+    Serial.print("Previous: ");
+    Serial.println(previous_file_number);
   #endif
 
   audio.play(file);
+  started_playing = true;
+
   while(audio.isPlaying()){
     blink_LED();
-    #ifdef DEBUG
-    Serial.println("We made it to playing the file!");
-    #endif
+    // #ifdef DEBUG
+    // Serial.print("Play transition: ");
+    // Serial.print(play_transition[1]);
+    // Serial.print(": ");
+    // Serial.println(play_transition[2]);
+    // #endif
+    if((digitalRead(message_button_1) == LOW) || (digitalRead(message_button_2) == LOW) || (digitalRead(message_button_3) == LOW) || (digitalRead(message_button_4) == LOW)){
+      audio.stopPlayback();
+    }
     // Need to add in a way to get out of this while loop like in other code (if another button is pressed).
   }
   digitalWrite(speaker_shutdown, LOW);
@@ -126,6 +145,8 @@ bool transitionS0S1(){
   // If any of the direct message buttons are pressed, find out which one
   if((digitalRead(message_button_1) == LOW) || (digitalRead(message_button_2) == LOW) || (digitalRead(message_button_3) == LOW) || (digitalRead(message_button_4) == LOW)){
     which_switch = -1;
+    previous_file_number = file_number;
+
     // Step through the buttons to find out which one was pressed
       for(int i = 3;i<7;i++){
         if (digitalRead(i) == LOW){
@@ -145,6 +166,10 @@ bool transitionS0S1(){
       else if (which_switch == 6){
         file_number = 4;
       }
+  
+  #ifdef DEBUG
+    Serial.println("Waiting to playing transition");
+  #endif
 
   return true;
   }
@@ -158,6 +183,7 @@ bool transitionS1S1(){
   // If any of the direct message buttons are pressed, find out which one
   if((digitalRead(message_button_1) == LOW) || (digitalRead(message_button_2) == LOW) || (digitalRead(message_button_3) == LOW) || (digitalRead(message_button_4) == LOW)){
     which_switch = -1;
+    previous_file_number = file_number;
 
     // Add something to stop playing audio.
     // Step through the buttons to find out which one was pressed
@@ -180,6 +206,10 @@ bool transitionS1S1(){
         file_number = 4;
       }
 
+  #ifdef DEBUG
+    Serial.println("Playing to playing transition");
+  #endif
+
   return true;
   }
   else{
@@ -201,6 +231,9 @@ bool transitionS1S0(){
     play_transition[2] = audio.isPlaying();
   }
   else if((play_transition[1] == true) && (play_transition[2] == false)){
+    #ifdef DEBUG
+      Serial.println("Playing to waiting transition");
+    #endif
     return true;
   }
 }
