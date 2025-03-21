@@ -10,6 +10,10 @@
 TMRpcm audio;
 File myFile;
 
+// Add state maching information
+StateMachine machine = StateMachine();
+
+
 //Additional Arduino connections
 const int mic {A0};
 const int rec_LED {A1};
@@ -29,7 +33,7 @@ const int speed_ID {A7}; // analog input pin to read which playback speed is sel
 //const int message_2
 //const int message_3
 //const int message_4
-const int advance_switch_jack {7};
+const int switch_scan_button {7};
 const long interval = 3000;
 const long blinkInterval = 500;
 
@@ -41,9 +45,11 @@ int current_message {1};
 const int sample_rate {16000};
 const String file_extension {".wav"}; 
 int old_file_level {1};
-const int message_total = 3; // Total number of messages to be stored on any one level
+const int message_total = 4; // Total number of messages to be stored on any one level
 char file_1 [50] = "rec_1_1.wav";
 char file_2 [50] = "rec_1_2.wav";
+char file_3 [50] = "rec_1_3.wav";
+char file_4 [50] = "rec_1_4.wav";
 unsigned long previousMillis = 0;
 unsigned long currentMillis = 0;
 int LEDState = LOW;
