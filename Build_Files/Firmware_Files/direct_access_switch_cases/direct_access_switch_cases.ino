@@ -20,7 +20,6 @@ State* S1 = play_machine.addState(&play_message);
 const int mic {A0};
 const int rec_LED {A1};
 const int play_LED {A2};
-const int select_switch_jack {6}; // switch jack for starting scanning and selecting options
 const int message_button_3 {5};
 const int message_button_2 {4};
 const int message_button_1 {3};
@@ -36,7 +35,8 @@ const int speed_ID {A7}; // analog input pin to read which playback speed is sel
 //const int message_3
 //const int message_4
 const int message_button_4 {6};
-const int switch_scan_button {7};
+const int switch_scan_button {7}; // Button to start switch scanning
+const int switch_select_button {2}; // Button to select a message
 
 // Variables related to timing
 const long interval = 3000;
@@ -258,7 +258,8 @@ void setup() {
   //attachInterrupt(digitalPinToInterrupt(level_button),level_int,FALLING);
   //pinMode(power_switch, INPUT_PULLUP);
   pinMode(speaker_shutdown, OUTPUT);
-  pinMode(select_switch_jack,INPUT_PULLUP);
+  pinMode(switch_scan_button,INPUT_PULLUP);
+  pinMode(switch_select_button,INPUT_PULLUP);
   //audio.CSPin = 10;
   audio.speakerPin = 9;
   audio.volume(5);
