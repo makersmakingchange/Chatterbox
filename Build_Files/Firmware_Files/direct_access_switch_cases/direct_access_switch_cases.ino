@@ -15,6 +15,7 @@ StateMachine play_machine = StateMachine();
 
 State* S0 = play_machine.addState(&waiting);
 State* S1 = play_machine.addState(&play_message);
+// State* S3 = play_machine.addState(&scan_delay);
 
 //Additional Arduino connections
 const int mic {A0};
@@ -57,6 +58,7 @@ int LEDState = LOW;
 int which_switch = -1;
 int previous_file_number = 1; // Store previous file number to check if it's the same switch being pressed again
 bool play_transition[2] = {false, false};
+bool switch_scanning = false; // Variable to track if we're in switch scanning or direct press
 
 
 // LED blinking function
@@ -81,11 +83,15 @@ void waiting(){
 // Read inputs, blink LEDs. Make the transition here: check if I have an input, if the audio is playing, etc.
 
   // #ifdef DEBUG
+  //   Serial.print(digitalRead(switch_scan_button));
   //   Serial.println("Waiting State");
   // #endif
 }
 
 void play_message(){
+  while(digitalRead(which_switch) == LOW){
+    // Wait for switch to be released
+  }
   #ifdef DEBUG
   Serial.print("Switch pressed: ");
   Serial.print(which_switch);
@@ -176,6 +182,16 @@ bool transitionS0S1(){
 
   return true;
   }
+  // Enter playing mode via the switch scanning button.
+  //   else if(digitalRead(switch_scan_button) == LOW){
+  //     which_switch = switch_scan_button;
+  //     switch_scanning = true;
+  //     file_number = 1;
+  //     #ifdef DEBUG
+  //       Serial.println("Waiting to playing via switch scan");
+  //     #endif
+  //   return true;
+  // }
   else{
     return false;
   }
@@ -233,7 +249,11 @@ bool transitionS1S0(){
   }
 }
 
-// Create transition into switch scanning
+// Create transition from playing a message into switch scanning
+
+bool transitionS1S2(){
+
+}
 
 void setup() {
   // put your setup code here, to run once:
