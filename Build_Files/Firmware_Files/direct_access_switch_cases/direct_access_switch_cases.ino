@@ -11,10 +11,10 @@ TMRpcm audio;
 File myFile;
 
 // Add state maching information
-StateMachine machine = StateMachine();
+StateMachine play_machine = StateMachine();
 
-State* S0 = machine.addState(&waiting);
-State* S1 = machine.addState(&play_message);
+State* S0 = play_machine.addState(&waiting);
+State* S1 = play_machine.addState(&play_message);
 
 //Additional Arduino connections
 const int mic {A0};
@@ -56,7 +56,6 @@ unsigned long currentMillis = 0;
 int LEDState = LOW;
 int which_switch = -1;
 int previous_file_number = 1; // Store previous file number to check if it's the same switch being pressed again
-bool started_playing = false; // Variable to read if the player has actually started playing a message
 bool play_transition[2] = {false, false};
 
 
@@ -81,9 +80,9 @@ void blink_LED(){
 void waiting(){
 // Read inputs, blink LEDs. Make the transition here: check if I have an input, if the audio is playing, etc.
 
-  #ifdef DEBUG
-    Serial.println("Waiting State");
-  #endif
+  // #ifdef DEBUG
+  //   Serial.println("Waiting State");
+  // #endif
 }
 
 void play_message(){
@@ -117,23 +116,27 @@ void play_message(){
   #endif
 
   audio.play(file);
-  started_playing = true;
 
   while(audio.isPlaying()){
     blink_LED();
-    // #ifdef DEBUG
-    // Serial.print("Play transition: ");
-    // Serial.print(play_transition[1]);
-    // Serial.print(": ");
-    // Serial.println(play_transition[2]);
-    // #endif
+    play_transition[1] = play_transition[2];
+    play_transition[2] = audio.isPlaying();
+    #ifdef DEBUG
+    Serial.print("Play transition: ");
+    Serial.print(play_transition[1]);
+    Serial.print(": ");
+    Serial.println(play_transition[2]);
+    #endif
     if((digitalRead(message_button_1) == LOW) || (digitalRead(message_button_2) == LOW) || (digitalRead(message_button_3) == LOW) || (digitalRead(message_button_4) == LOW)){
       audio.stopPlayback();
+      play_transition[1] = play_transition[2];
+      play_transition[2] = audio.isPlaying();
     }
-    // Need to add in a way to get out of this while loop like in other code (if another button is pressed).
   }
   digitalWrite(speaker_shutdown, LOW);
   digitalWrite(play_LED, LOW);
+  play_transition[1] = play_transition[2];
+  play_transition[2] = audio.isPlaying();
   #ifdef DEBUG
     Serial.println("Exited playing");
   #endif
@@ -181,7 +184,7 @@ bool transitionS0S1(){
 // Create transition to interupt playing where if a different button is pressed it moves to that message.
 bool transitionS1S1(){
   // If any of the direct message buttons are pressed, find out which one
-  if((digitalRead(message_button_1) == LOW) || (digitalRead(message_button_2) == LOW) || (digitalRead(message_button_3) == LOW) || (digitalRead(message_button_4) == LOW)){
+  if((digitalRead(message_button_1) == LOW) || (digitalRead(message_button_2) == LOW) || (digitalRead(message_button_3) == LOW) || (digitalRead(message_button_4) == LOW) && (play_transition[1] == true)){
     which_switch = -1;
     previous_file_number = file_number;
 
@@ -220,20 +223,12 @@ bool transitionS1S1(){
 // Create transition from playing to waiting
 
 bool transitionS1S0(){
-  bool play_transition[2] = {false, false};
-  if (audio.isPlaying() == true){
-    play_transition[1] = play_transition[2];
-    play_transition[2] = audio.isPlaying();
-    return false;
-  }
-  else if(!audio.isPlaying()){
-    play_transition[1] = play_transition[2];
-    play_transition[2] = audio.isPlaying();
-  }
-  else if((play_transition[1] == true) && (play_transition[2] == false)){
+
+  if((play_transition[1] == true) && (play_transition[2] == false)){
     #ifdef DEBUG
       Serial.println("Playing to waiting transition");
     #endif
+    play_transition[1] = false;
     return true;
   }
 }
@@ -291,14 +286,14 @@ void setup() {
     
   }
   // Set transitions between states
-  S0->addTransition(&transitionS0S1,S1);
-  S1->addTransition(&transitionS1S0,S0);
-  S1->addTransition(&transitionS1S1,S1);
+  S0->addTransition(&transitionS0S1,S1); // Transition from waiting to playing a message
+  S1->addTransition(&transitionS1S0,S0); // Transition from playing a message to waiting
+  S1->addTransition(&transitionS1S1,S1); // Transition from playing a message to playing a new message
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  machine.run();
+  play_machine.run();
 
 }
