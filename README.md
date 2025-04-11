@@ -1,9 +1,5 @@
 <!--- Open Source Assistive Technology: GitHub Readme Template Version 1.2 (2024-May-27)  --->
 
-<!--- TEMPLATE INTRODUCTION --->
-<!--- This section and the following text should be removed. --->
-This is a GitHub repository intended to act as a template for an open source assistive technology device. It is meant to contain all design files, build files, and documentation for the project. More information about how to use the template is available in the [OpenAT_Template_Guide](/OpenAT_Template_Guide.pdf). You can see examples of other Open AT Devices at the Makers Making Change [website](https://www.makersmakingchange.com/s/category/assistive-devices). 
-
 <!--- INSTRUCTIONS --->
 <!--- This is a markdown template for creating the README.md file in a GitHub repository. This file is rendered and displayed automatically when someone visits the repository.
 
@@ -24,8 +20,7 @@ Any text that is currently holding a space / is an instruction for the person fi
 --->
  
 <!--- TITLE --->
-# <DeviceName>
-<!--- Should match the name of the GitHub repository. Choose something descriptive rather than whimsical.  --->
+# Auditory Scanning Device
 
 ## Overview
 <!--- A brief summary of the project. What it does, who it is for, how much it costs. --->
@@ -138,6 +133,7 @@ Testers:
 
 ---
 
+<!-- ABOUT MMC START -->
 ## About Makers Making Change
 <!--- This is standard boilerplate for Makers Making Change. No changes should be required. --->
 [<img src="https://raw.githubusercontent.com/makersmakingchange/makersmakingchange/main/img/mmc_logo.svg" width="500" alt="Makers Making Change Logo">](https://www.makersmakingchange.com/)
@@ -157,3 +153,4 @@ Makers Making Change leverages the capacity of community based Makers, Disabilit
 
 ### Contact Us
 For technical questions, to get involved, or to share your experience we encourage you to [visit our website](https://www.makersmakingchange.com/) or [contact us](https://www.makersmakingchange.com/s/contact).
+<!-- ABOUT MMC END -->
