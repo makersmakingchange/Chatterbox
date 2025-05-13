@@ -12,12 +12,17 @@ TMRpcm audio;
 File myFile;
 
 // Add state maching information
-StateMachine play_machine = StateMachine();
+StateMachine play_machine = StateMachine(); // Machine for when playing messages
+StateMachine record_machine = StateMachine(); // Machine for when recording messages
 
 State* S0 = play_machine.addState(&waiting);
 State* S1 = play_machine.addState(&play_message);
-// State* S2 = play_machine.addState(&scan_delay);
-Neotimer mytimer; // Set one second timer, length of time can change later
+// State* S2 = play_machine.addState(&record_waiting);
+// State* S2 = record_machine.addState(&record_play_message);
+// State* S3 = record_machine.addState(&record_message);
+// State* S4 = record_machine.addState(&record_waiting);
+Neotimer mytimer; // Set timer for the delay between advancing messages without an input
+//Neotimer record_timer; // Set timer for when to go from just replaying a message to recording it
 
 //Additional Arduino connections
 const int mic {A0};
@@ -33,10 +38,8 @@ const int level_2 {A4};
 const int level_1 {A3};
 const int level_ID {A6}; // analog input pin to read which level is selected
 const int speed_ID {A7}; // analog input pin to read which playback speed is selected
-//const int message_1
-//const int message_2
-//const int message_3
-//const int message_4
+const int mode_ID {A5}; // analog input pin to read if it's in playback or recording mode
+
 const int message_button_4 {6};
 const int switch_scan_button {7}; // Button to start switch scanning
 const int switch_advance_button {2}; // Button to select a message
@@ -61,10 +64,15 @@ int which_switch = -1;
 int previous_file_number = 1; // Store previous file number to check if it's the same switch being pressed again
 bool play_transition[2] = {false, false};
 bool switch_scanning = false; // Variable to track if we're in switch scanning or direct press
-// Hard code in the file variable
-char file_name[][12]{"rec_1_1.wav", "rec_1_2.wav", "rec_1_3.wav", "rec_1_4.wav"};
+// Hard code in the file variable name
+char file_name[][12]{"rec_1_1.wav", "rec_1_2.wav", "rec_1_3.wav", "rec_1_4.wav"}; // Level 1 filename
+char file_name2[][12]{"rec_2_1.wav", "rec_2_2.wav", "rec_2_3.wav", "rec_2_4.wav"}; // Level 2 filename
+char file_name3[][12]{"rec_3_1.wav", "rec_3_2.wav", "rec_3_3.wav", "rec_3_4.wav"}; // Level 3 filename
 char file [12];
 bool advance_message = false; // variable to advance to next message
+bool playback_mode = true; // variable to store if it's in record or playback mode
+int playback_threshold = 10; // variable for checking the threshold to be in playback vs record mode
+
 //------------------------------------------------------------------------------------------------------
 // Functions
 
@@ -92,8 +100,8 @@ void waiting(){
 // Read inputs, blink LEDs. Make the transition here: check if I have an input, if the audio is playing, etc.
 
   // #ifdef DEBUG
-  //   Serial.print(digitalRead(switch_scan_button));
-  //   Serial.println("Waiting State");
+  //   Serial.print(analogRead(mode_ID));
+  //   Serial.println("Analog pin reading");
   // #endif
   
   // Add statement to handle switch scanning in this waiting state.
@@ -258,6 +266,35 @@ void play_message(){
 
 }
 
+//-------------------------------------------------------------------------------------------------------
+// Recording states
+void record_waiting(){
+  // Blink the built-in LED while waiting for any input
+
+  //  currentMillis = millis();
+
+  // if(currentMillis - previousMillis >= blinkInterval){
+  //   previousMillis = currentMillis;
+
+  //   if(LEDState == LOW){
+  //     LEDState = HIGH;
+  //   }
+  //   else{
+  //     LEDState = LOW;
+  //   }
+  //   digitalWrite(LED_BUILTIN, LEDState);
+  // }
+}
+
+// void record_play_message(){
+
+
+// }
+
+// void record_message(){
+
+// }
+
 //-----------------------------------------------------------------------------------------------------------------------
 // Transitions
 
@@ -385,47 +422,6 @@ bool transitionS1S0(){
   }
 }
 
-// Create transition from playing a message to switch scanning delay
-// bool transitionS1S2(){
-//   if(switch_scanning && (play_transition[1] == true) && (play_transition[2] == false)){
-//     #ifdef DEBUG
-//     Serial.println("Playing to scan delay transition");
-//     #endif
-//     // play_transition[1] = false;
-//     mytimer = Neotimer(interval);
-//     mytimer.start();
-//     return true;
-//   }
-//   else{
-//     return false;
-//   }
-  
-// }
-
-// Create transition from switch scanning delay to playing message
-
-// bool transitionS2S1(){
-
-//     }
-
-// }
-
-// Create transition from switch scanning delay to waiting
-
-// bool transitionS2S0(){
-//   if(switch_back){
-//     switch_back = false;
-//     switch_scanning = false;
-//     #ifdef DEBUG
-//       Serial.println("Scan delay to waiting transition");
-//     #endif
-//     return true;
-//   }
-//   else{
-//     return false;
-//   }
-// }
-
 
 void setup() {
   // put your setup code here, to run once:
@@ -452,6 +448,7 @@ void setup() {
   pinMode(speaker_shutdown, OUTPUT);
   pinMode(switch_scan_button,INPUT_PULLUP);
   pinMode(switch_advance_button,INPUT_PULLUP);
+  pinMode(mode_ID,INPUT); // Input mode for the analog pin to read the resistor ladder for the mode
   //audio.CSPin = 10;
   audio.speakerPin = 9;
   audio.volume(5);
@@ -478,16 +475,27 @@ void setup() {
     }
     
   }
-  // Set transitions between states
+  // Set transitions between states for the playback machine
   S0->addTransition(&transitionS0S1,S1); // Transition from waiting to playing a message
   S1->addTransition(&transitionS1S0,S0); // Transition from playing a message to waiting
   S1->addTransition(&transitionS1S1,S1); // Transition from playing a message to playing a new message
-  // S1->addTransition(&transitionS1S2,S2); // Transition from playing a message to the switch delay
+  
+  // if(analogRead(mode_ID)>playback_threshold){
+  //   playback_mode = true;
+  // }
+  // else{
+  //   playback_mode = false;
+  // }
+
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  if(playback_mode){
   play_machine.run();
-
+  }
+  else{
+    record_machine.run();
+  }
 }
