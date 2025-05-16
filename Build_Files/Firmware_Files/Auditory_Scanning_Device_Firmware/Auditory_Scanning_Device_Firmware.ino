@@ -85,51 +85,59 @@ Copyright (C) 2023-2024 Neil Squire Society
 >>>>>>>> PCB-Version:Build_Files/Firmware_Files/Open_Playback_Recorder_Firmware/Open_Playback_Recorder_Firmware.ino
 */
 
+// Add libraries
+//-----------------------------------------------------------------------------------
 #include <TMRpcm.h>
 #include <SD.h>
 #include <SPI.h>
 #include <StateMachine.h>
 #include <neotimer.h>
 
+// Debugging line
 #define DEBUG
 
+// Define library variables
+//-----------------------------------------------------------------------------------
 TMRpcm audio;
 File myFile;
+Neotimer delayTimer; // Set timer for the delay between advancing messages without an input
 
-// Add state maching information
-StateMachine play_machine = StateMachine(); // Machine for when playing messages
-StateMachine record_machine = StateMachine(); // Machine for when recording messages
+// As mentioned later, actually using this timer causes issues
+Neotimer record_timer; // Set timer for when to go from just replaying a message to recording it
 
-State* S0 = play_machine.addState(&waiting);
-State* S1 = play_machine.addState(&play_message);
-// State* S2 = play_machine.addState(&record_waiting);
-// State* S2 = record_machine.addState(&record_play_message);
-// State* S3 = record_machine.addState(&record_message);
-// State* S4 = record_machine.addState(&record_waiting);
-Neotimer mytimer; // Set timer for the delay between advancing messages without an input
-//Neotimer record_timer; // Set timer for when to go from just replaying a message to recording it
+// Declare state machine and states
+//-------------------------------------------------------------------------------------
+StateMachine play_machine = StateMachine(); // Declare the state machine
+
+State* S0 = play_machine.addState(&waiting); // State for when waiting for an input
+State* S1 = play_machine.addState(&play_message); // State for playing a message
+State* S2 = play_machine.addState(&record_waiting); // State for when waiting for an input to record a new message
+// State* S3 = play_machine.addState(&record_playback); // Uncommenting this line causes issue
+
 
 //Additional Arduino connections
+//----------------------------------------------------------------------------------------
 const int mic {A0};
 const int rec_LED {A1};
 const int play_LED {A2};
-const int message_button_3 {5};
-const int message_button_2 {4};
-const int message_button_1 {3};
-//const int power_switch {10};
+const int switch_advance_button {2}; // Button to select a message
+const int message_button_1 {3}; // Button to play/record first message
+const int message_button_2 {4}; // Button to play/record second message
+const int message_button_3 {5}; // Button to play/record third message
+const int message_button_4 {6}; // Button to play/record fourth message
+const int switch_scan_button {7}; // Button to start switch scanning
 const int speaker_shutdown {8};
-const int level_3 {A5};
-const int level_2 {A4};
-const int level_1 {A3};
+//const int message_LED_1 {A1}; // Message 1 LED output. Will be updated later
+//const int message_LED_2 {A2}; // Message 2 LED output. Will be updated later
+const int message_LED_3 {A3}; // Message 3 LED output
+const int message_LED_4 {A4}; // Message 4 LED output
+const int mode_ID {A5}; // analog input pin to read if it's in playback or recording mode
 const int level_ID {A6}; // analog input pin to read which level is selected
 const int speed_ID {A7}; // analog input pin to read which playback speed is selected
-const int mode_ID {A5}; // analog input pin to read if it's in playback or recording mode
 
-const int message_button_4 {6};
-const int switch_scan_button {7}; // Button to start switch scanning
-const int switch_advance_button {2}; // Button to select a message
-
-// Variables related to timing
+// Declare variables
+//-----------------------------------------------------------------------------------------
+// Timing variables
 const long interval = 3000;
 const long blinkInterval = 500;
 
@@ -147,16 +155,22 @@ unsigned long currentMillis = 0;
 int LEDState = LOW;
 int which_switch = -1;
 int previous_file_number = 1; // Store previous file number to check if it's the same switch being pressed again
-bool play_transition[2] = {false, false};
-bool switch_scanning = false; // Variable to track if we're in switch scanning or direct press
 // Hard code in the file variable name
 char file_name[][12]{"rec_1_1.wav", "rec_1_2.wav", "rec_1_3.wav", "rec_1_4.wav"}; // Level 1 filename
 char file_name2[][12]{"rec_2_1.wav", "rec_2_2.wav", "rec_2_3.wav", "rec_2_4.wav"}; // Level 2 filename
 char file_name3[][12]{"rec_3_1.wav", "rec_3_2.wav", "rec_3_3.wav", "rec_3_4.wav"}; // Level 3 filename
 char file [12];
+
+// Other variables
+int playback_threshold = 10; // variable for checking the threshold to be in playback vs record mode
+
+
+// Boolean values for triggering transitions
+//-----------------------------------------------------------------------------------------------------
 bool advance_message = false; // variable to advance to next message
 bool playback_mode = true; // variable to store if it's in record or playback mode
-int playback_threshold = 10; // variable for checking the threshold to be in playback vs record mode
+bool play_transition[2] = {false, false};
+bool switch_scanning = false; // Variable to track if we're in switch scanning or direct press
 
 //------------------------------------------------------------------------------------------------------
 // Functions
@@ -181,6 +195,8 @@ void blink_LED(){
 
 //------------------------------------------------------------------------------------------------------
 // States of state machine
+
+// Default state for waiting on an input
 void waiting(){
 // Read inputs, blink LEDs. Make the transition here: check if I have an input, if the audio is playing, etc.
 
@@ -189,24 +205,25 @@ void waiting(){
   //   Serial.println("Analog pin reading");
   // #endif
   
-  // Add statement to handle switch scanning in this waiting state.
+  // Handling switch scanning (waiting for input and/or advancing message)
   if(switch_scanning){
 
-    // Will need to read the interval later, rather than hard coded.
-    // If the timer ends without an input, advance to the next message if it's within the message count total
-    if(mytimer.done()){
+    // NOTE: Will need to read the interval later, rather than hard coded.
+
+    // If the timer ends without an input, advance to the next message if it's within the message count total.
+    if(delayTimer.done()){
       if(file_number < message_total){
       file_number += 1;
       strcpy(file,file_name[file_number-1]);
       advance_message = true;
-      mytimer.reset();
+      delayTimer.reset();
       }
 
       // If the message is going past the total message count, stop switch scanning
       else{
         switch_scanning = false;
         advance_message = false;
-        mytimer.reset();
+        delayTimer.reset();
       }
     }
 
@@ -219,56 +236,41 @@ void waiting(){
       file_number += 1;
       strcpy(file,file_name[file_number-1]);
       advance_message = true;
-      mytimer.reset();
+      delayTimer.reset();
       }
 
       // If the message is going past the total message count, stop switch scanning
       else{
         switch_scanning = false;
         advance_message = false;
-        mytimer.reset();
+        delayTimer.reset();
       }
     }
 
+    // If the switch scanning button is pressed again, replay the current message and stop switch scanning.
     else if(digitalRead(switch_scan_button) == LOW){
       while(digitalRead(switch_scan_button) == LOW){
         // wait for the switch to be released
       }
-      // This part works if timing works
       #ifdef DEBUG
         Serial.println("Switch scan button pressed during switch scan pause");
       #endif
       switch_scanning = false;
       advance_message = true;
-      mytimer.reset();
+      delayTimer.reset();
     }
 
   }
 }
 
+// State to play message. Might make more sense as a function than a state.
 void play_message(){
   while(digitalRead(which_switch) == LOW){
     // Wait for switch to be released
   }
-  // #ifdef DEBUG
-  // Serial.print("Switch pressed: ");
-  // Serial.print(which_switch);
-  // Serial.print(" Playing Message State");
-  // Serial.print(" Playing message? ");
-  // Serial.println(audio.isPlaying());
-  // #endif
 
-  // String file_name = "rec_";
-  // file_name += file_level;
-  // file_name += "_";
-  // file_name += file_number;
-  // file_name += file_extension;
-
-  // char file [50];
-  // file_name.toCharArray(file,50);
-
-  digitalWrite(play_LED, HIGH);
-  digitalWrite(speaker_shutdown, HIGH);
+  digitalWrite(play_LED, HIGH); // Turn the LED on
+  digitalWrite(speaker_shutdown, HIGH); // Turn speaker on
 
   #ifdef DEBUG
     Serial.print("File: ");
@@ -281,10 +283,11 @@ void play_message(){
     // Serial.println(switch_scan_button);
   #endif
 
-  audio.play(file);
+  audio.play(file); // Start playing the file. The file is defined in the transition to this state.
 
   while(audio.isPlaying()){
-    blink_LED();
+    blink_LED(); // Blink the LED while the audio is playing
+    // Update transition variable.
     play_transition[1] = play_transition[2];
     play_transition[2] = audio.isPlaying();
     // #ifdef DEBUG
@@ -293,34 +296,37 @@ void play_message(){
     // Serial.print(": ");
     // Serial.println(play_transition[2]);
     // #endif
-    // *** NOTE: *** Need to add option for pressing the switch advance or select button to stop playing.
+
+    // Interrupt playing if another button is pressed, and start playing that message instead.
     if((digitalRead(message_button_1) == LOW) || (digitalRead(message_button_2) == LOW) || (digitalRead(message_button_3) == LOW) || (digitalRead(message_button_4) == LOW)){
       play_transition[1] = play_transition[2];
       play_transition[2] = audio.isPlaying();
-      audio.stopPlayback();
+      audio.stopPlayback(); // Stop current audio
     }
+    // Interrupt playing if the switch advance button is pressed and advance message
     else if((digitalRead(switch_advance_button) == LOW) && switch_scanning){
       play_transition[1] = play_transition[2];
       play_transition[2] = audio.isPlaying();
-      audio.stopPlayback();
+      audio.stopPlayback(); // Stop playing message
       while(digitalRead(switch_advance_button) == LOW){
         // wait for the switch to be released
       }
+      // Increase the file number to play the next message
       if(file_number < message_total){
       file_number += 1;
       strcpy(file,file_name[file_number-1]);
       advance_message = true;
-      mytimer.reset();
+      delayTimer.reset();
       }
 
       // If the message is going past the total message count, stop switch scanning
       else{
         switch_scanning = false;
         advance_message = false;
-        mytimer.reset();
+        delayTimer.reset();
       }
     }
-    // If the switch scan button is pressed, replay the message
+    // If the switch scan button is pressed while switch scanning, replay the message
     else if((digitalRead(switch_scan_button) == LOW) && switch_scanning){
             while(digitalRead(switch_scan_button) == LOW){
         // wait for the switch to be released
@@ -328,67 +334,56 @@ void play_message(){
       play_transition[1] = play_transition[2];
       play_transition[2] = audio.isPlaying();
       audio.stopPlayback();
-      advance_message = true;
+      advance_message = true; // Re-use advance message transition here to reduce number of variables
       switch_scanning = false;
-      mytimer.reset();
+      delayTimer.reset();
 
     }
   }
-  digitalWrite(speaker_shutdown, LOW);
-  digitalWrite(play_LED, LOW);
-  play_transition[1] = true;
-  play_transition[2] = audio.isPlaying();
+  digitalWrite(speaker_shutdown, LOW); // Turn the speaker off after a message stops
+  digitalWrite(play_LED, LOW); // Turn off the LED
+  play_transition[1] = true; // Set first play transition variable in case timing has gone odd.
+  play_transition[2] = audio.isPlaying(); // Check to make sure this transition variable is false.
   #ifdef DEBUG
     Serial.print(play_transition[1]);
     Serial.print(play_transition[2]);
     Serial.println("Exited playing");
   #endif
+
+  // Start the delay timer for waiting between playing messages if in switch scanning.
   if(switch_scanning){
     // Will need to make thing to read timer interval later
-    mytimer = Neotimer(interval);
-    mytimer.start();
+    delayTimer = Neotimer(interval);
+    delayTimer.start();
   }
 
 }
 
-//-------------------------------------------------------------------------------------------------------
-// Recording states
+// Recording states. Note that they just blink the LED currently to have them do something.
 void record_waiting(){
   // Blink the built-in LED while waiting for any input
+  blink_LED();
 
-  //  currentMillis = millis();
-
-  // if(currentMillis - previousMillis >= blinkInterval){
-  //   previousMillis = currentMillis;
-
-  //   if(LEDState == LOW){
-  //     LEDState = HIGH;
-  //   }
-  //   else{
-  //     LEDState = LOW;
-  //   }
-  //   digitalWrite(LED_BUILTIN, LEDState);
-  // }
 }
 
-// void record_play_message(){
+void record_playback(){
+ blink_LED();
 
+}
 
-// }
-
-// void record_message(){
-
-// }
+void record_message(){
+  blink_LED();
+}
 
 //-----------------------------------------------------------------------------------------------------------------------
 // Transitions
 
 // Create transition from waiting state to direct message playing
 bool transitionS0S1(){
-  // If any of the direct message buttons are pressed, find out which one
+  // Transition to playing if any of the direct message buttons or the switch scanning button are pressed.
   if((digitalRead(message_button_1) == LOW) || (digitalRead(message_button_2) == LOW) || (digitalRead(message_button_3) == LOW) || (digitalRead(message_button_4) == LOW) || (digitalRead(switch_scan_button) == LOW)){
-    which_switch = -1;
-    previous_file_number = file_number;
+    which_switch = -1; // Variable to store which switch is pressed
+    previous_file_number = file_number; // Checking if we are repeating a file
 
     // Step through the buttons to find out which one was pressed
       for(int i = 3;i<8;i++){
@@ -396,10 +391,12 @@ bool transitionS0S1(){
           which_switch = i;
         }
       }
-      // Write the file number to be passed to the playing function to write the file
+
+      // Write the file number and read the "file" variable to be sent to the play function
       if (which_switch == 3){
         file_number = 1;
         strcpy(file,file_name[file_number-1]);
+        // Make sure switch scanning is false/reset if it wasn't already
         switch_scanning = false;
       }
       else if (which_switch == 4){
@@ -417,15 +414,19 @@ bool transitionS0S1(){
         strcpy(file,file_name[file_number-1]);
         switch_scanning = false;
       }
+
+      // This is for the switch scanning button.
       else if (which_switch == 7){
+        // If not currently switch scanning, then start at the first message
         if(switch_scanning == false){
-          file_number = 1;
+          file_number = 1; 
           switch_scanning = true; // Turn on the switch scanning variable to track that we are switch scanning when we go into the play button transitions.
           strcpy(file,file_name[file_number-1]);
           #ifdef DEBUG
             Serial.println("Start switch scanning");
           #endif
         }
+        // If already switch scanning, then turn off switch scanning and repeat the message
         else if (switch_scanning){
           switch_scanning = false;
           #ifdef DEBUG
@@ -437,17 +438,54 @@ bool transitionS0S1(){
   #ifdef DEBUG
     Serial.println("Waiting to playing transition");
   #endif
-
+  // Returning true if a button to start playing a message is pressed.
   return true;
   }
   
+  // If a message needs to be advanced or replayed:
   else if(advance_message){
+    // Turn off advancing the message
     advance_message = false;
+    // Transition into playing a message
     return true;
   }
 
+  // If a message button isn't pressed, etc., do not activate this transition.
   else{
   return false;
+  }
+}
+
+bool transitionS0S2(){
+  if((digitalRead(switch_advance_button) == LOW) && (switch_scanning == false)){
+    while(switch_advance_button == LOW){
+      
+    }
+
+    delayTimer = Neotimer(interval);
+    delayTimer.start();
+    // If I use a second timer here then it will not run. If I don't use the "start" command the rest of the code works, but the timer won't
+    // Using the same delayTimer allows it to run. 
+    // record_timer = Neotimer(interval);
+    // record_timer.start();
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+bool transitionS2S0(){
+  if(delayTimer.done()){
+    delayTimer.reset();
+    return true;
+  }
+  // if(record_timer.done()){
+  //   record_timer.reset();
+  //   return true;
+  // }
+  else{
+    return false;
   }
 }
 
@@ -564,23 +602,14 @@ void setup() {
   S0->addTransition(&transitionS0S1,S1); // Transition from waiting to playing a message
   S1->addTransition(&transitionS1S0,S0); // Transition from playing a message to waiting
   S1->addTransition(&transitionS1S1,S1); // Transition from playing a message to playing a new message
-  
-  // if(analogRead(mode_ID)>playback_threshold){
-  //   playback_mode = true;
-  // }
-  // else{
-  //   playback_mode = false;
-  // }
-
+  S0->addTransition(&transitionS0S2,S2); // Transition from waiting to recording mode
+  // S2->addTransition(&transitionS2S0,S0); // Transition back from recording to waiting mode. Uncommenting this line causes the issue.
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if(playback_mode){
+
   play_machine.run();
-  }
-  else{
-    record_machine.run();
-  }
+
 }
