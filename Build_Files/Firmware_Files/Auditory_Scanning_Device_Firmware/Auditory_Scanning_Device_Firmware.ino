@@ -171,6 +171,7 @@ bool advance_message = false; // variable to advance to next message
 bool playback_mode = true; // variable to store if it's in record or playback mode
 bool play_transition[2] = {false, false};
 bool switch_scanning = false; // Variable to track if we're in switch scanning or direct press
+bool recording_mode = false; // Variable for checking if you're in recording mode
 
 //------------------------------------------------------------------------------------------------------
 // Functions
@@ -462,12 +463,13 @@ bool transitionS0S2(){
       
     }
 
-    delayTimer = Neotimer(interval);
-    delayTimer.start();
+    // delayTimer = Neotimer(interval);
+    // delayTimer.start();
     // If I use a second timer here then it will not run. If I don't use the "start" command the rest of the code works, but the timer won't
     // Using the same delayTimer allows it to run. 
     // record_timer = Neotimer(interval);
     // record_timer.start();
+    recording_mode = true;
     return true;
   }
   else{
@@ -476,10 +478,18 @@ bool transitionS0S2(){
 }
 
 bool transitionS2S0(){
-  if(delayTimer.done()){
-    delayTimer.reset();
+  // Try this other method for the transition to see if the timer's the issue. Turns out it is not.
+  if(recording_mode && (digitalRead(switch_advance_button)==LOW)){
+    while(switch_advance_button == LOW){
+    }
+    recording_mode = false;
+    digitalWrite(play_LED,LOW);
     return true;
   }
+    // if(delayTimer.done()){
+    //   delayTimer.reset();
+    //   return true;
+        // }
   // if(record_timer.done()){
   //   record_timer.reset();
   //   return true;
@@ -559,9 +569,8 @@ void setup() {
   //Define pins
   pinMode(rec_LED, OUTPUT);
   pinMode(play_LED, OUTPUT);
-  pinMode(level_1, OUTPUT);
-  pinMode(level_2, OUTPUT);
-  pinMode(level_3, OUTPUT);
+  pinMode(message_LED_3, OUTPUT);
+  pinMode(message_LED_4, OUTPUT);
   pinMode(message_button_1, INPUT_PULLUP);
   pinMode(message_button_2, INPUT_PULLUP);
   pinMode(message_button_3, INPUT_PULLUP);
@@ -572,6 +581,7 @@ void setup() {
   pinMode(switch_scan_button,INPUT_PULLUP);
   pinMode(switch_advance_button,INPUT_PULLUP);
   pinMode(mode_ID,INPUT); // Input mode for the analog pin to read the resistor ladder for the mode
+  pinMode(level_ID,INPUT); // Input for the analog read pint to read the resistor ladder for the level
   //audio.CSPin = 10;
   audio.speakerPin = 9;
   audio.volume(5);
