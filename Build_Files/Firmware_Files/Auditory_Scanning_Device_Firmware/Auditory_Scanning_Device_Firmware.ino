@@ -87,8 +87,8 @@ Copyright (C) 2023-2024 Neil Squire Society
 
 // Add libraries
 //-----------------------------------------------------------------------------------
-#include <TMRpcm.h>
-#include <SD.h>
+#include <TMRpcm.h>  // Message recording and playback library
+#include <SD.h> // Libary
 #include <SPI.h>
 #include <StateMachine.h>
 #include <neotimer.h>
@@ -169,9 +169,13 @@ int playback_threshold = 10; // variable for checking the threshold to be in pla
 //-----------------------------------------------------------------------------------------------------
 bool advance_message = false; // variable to advance to next message
 bool playback_mode = true; // variable to store if it's in record or playback mode
-bool play_transition[2] = {false, false};
+bool play_transition[2] = {false, false}; // Add explanation of this**********************************
 bool switch_scanning = false; // Variable to track if we're in switch scanning or direct press
 bool recording_mode = false; // Variable for checking if you're in recording mode
+
+// Variables to cause things to fail
+char newVariable{"New Variable"};
+char newerVariable{"Newer variable"};
 
 //------------------------------------------------------------------------------------------------------
 // Functions
@@ -192,6 +196,14 @@ void blink_LED(){
     }
     digitalWrite(play_LED, LEDState);
   }
+}
+
+// Checking memory function for debugging
+
+extern int __heap_start, *__brkval;
+int freeMemory() {
+  int v;
+  return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
 }
 
 //------------------------------------------------------------------------------------------------------
@@ -274,20 +286,26 @@ void play_message(){
   digitalWrite(speaker_shutdown, HIGH); // Turn speaker on
 
   #ifdef DEBUG
-    Serial.print("File: ");
-    Serial.println(file);
-    // Serial.print(" File Number: ");
-    // Serial.print(file_number);
-    // Serial.print(" Previous: ");
-    // Serial.println(previous_file_number);
-    Serial.println(switch_scanning);
+    // Serial.print("File: ");
+    // Serial.println(file);
+    // // Serial.print(" File Number: ");
+    // // Serial.print(file_number);
+    // // Serial.print(" Previous: ");
+    // // Serial.println(previous_file_number);
+    // Serial.println(switch_scanning);
     // Serial.println(switch_scan_button);
+    Serial.print("Free memory: ");
+    Serial.println(freeMemory());
   #endif
 
   audio.play(file); // Start playing the file. The file is defined in the transition to this state.
 
+  #ifdef DEBUG
+    Serial.print("Free memory while playing: ");
+    Serial.println(freeMemory());
+  #endif
+
   while(audio.isPlaying()){
-    blink_LED(); // Blink the LED while the audio is playing
     // Update transition variable.
     play_transition[1] = play_transition[2];
     play_transition[2] = audio.isPlaying();
@@ -387,7 +405,7 @@ bool transitionS0S1(){
     previous_file_number = file_number; // Checking if we are repeating a file
 
     // Step through the buttons to find out which one was pressed
-      for(int i = 3;i<8;i++){
+      for(int i = 3; i < 8; i++){
         if (digitalRead(i) == LOW){
           which_switch = i;
         }
@@ -459,7 +477,8 @@ bool transitionS0S1(){
 
 bool transitionS0S2(){
   if((digitalRead(switch_advance_button) == LOW) && (switch_scanning == false)){
-    while(switch_advance_button == LOW){
+    // TODO: 2025-05-21 Stephan: Switch to delay and timeout. ************************* Use this format for suggestions/updates
+    while(digitalRead(switch_advance_button) == LOW){
       
     }
 
@@ -480,7 +499,7 @@ bool transitionS0S2(){
 bool transitionS2S0(){
   // Try this other method for the transition to see if the timer's the issue. Turns out it is not.
   if(recording_mode && (digitalRead(switch_advance_button)==LOW)){
-    while(switch_advance_button == LOW){
+    while(digitalRead(switch_advance_button) == LOW){
     }
     recording_mode = false;
     digitalWrite(play_LED,LOW);
@@ -499,10 +518,12 @@ bool transitionS2S0(){
   }
 }
 
+// TODO: 2025-05-22 Stephan to remove this transition as it was not executed.
 // Create transition to interupt playing where if a different button is pressed it moves to that message.
 bool transitionS1S1(){
   // If any of the direct message buttons are pressed, find out which one
-  if((digitalRead(message_button_1) == LOW) || (digitalRead(message_button_2) == LOW) || (digitalRead(message_button_3) == LOW) || (digitalRead(message_button_4) == LOW) && (play_transition[1] == true)){
+  if(((digitalRead(message_button_1) == LOW) || (digitalRead(message_button_2) == LOW) || (digitalRead(message_button_3) == LOW) || (digitalRead(message_button_4) == LOW))
+   && (play_transition[1] == true)){
     which_switch = -1;
     previous_file_number = file_number;
     switch_scanning = false;
@@ -561,11 +582,13 @@ void setup() {
   
   Serial.begin(9600);
 
+  // TO DO: Add a timeout because if this isn't connected to a computer it won't work.
   #ifdef DEBUG
   while (!Serial) {
     // wait for serial port to connect
   }
-  #endif
+  #endif 
+
   //Define pins
   pinMode(rec_LED, OUTPUT);
   pinMode(play_LED, OUTPUT);
@@ -597,7 +620,7 @@ void setup() {
     #ifdef DEBUG
     Serial.println("Initialization failed!");
     #endif
-    
+    // If the SD card doesn't initialize, blink the LEDs until a reset.
     while (1){
       digitalWrite(rec_LED, HIGH);
       digitalWrite(play_LED, HIGH);
@@ -611,9 +634,9 @@ void setup() {
   // Set transitions between states for the playback machine
   S0->addTransition(&transitionS0S1,S1); // Transition from waiting to playing a message
   S1->addTransition(&transitionS1S0,S0); // Transition from playing a message to waiting
-  S1->addTransition(&transitionS1S1,S1); // Transition from playing a message to playing a new message
+  // S1->addTransition(&transitionS1S1,S1); // Transition from playing a message to playing a new message.Uncommenting this line causes the issue, but this transition was never used anyway.
   S0->addTransition(&transitionS0S2,S2); // Transition from waiting to recording mode
-  // S2->addTransition(&transitionS2S0,S0); // Transition back from recording to waiting mode. Uncommenting this line causes the issue.
+  S2->addTransition(&transitionS2S0,S0); // Transition back from recording to waiting mode. 
 
 }
 
