@@ -1,0 +1,12 @@
+2025-06-04
+What I did:
+- Cleaned up any magic numbers
+- Got rid of uneccessary if statements in playing function
+- Added empty transitions and states for all remaining states
+- Added resistor ladder and code for changing mode
+- Updated all LEDs to play with corresponding messages
+To do:
+- Implement playing messages in recording mode
+- Implement recording messages in recording mode
+Roadblocks:
+- None today
