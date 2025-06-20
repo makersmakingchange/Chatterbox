@@ -103,7 +103,7 @@ File myFile;
 Neotimer delayTimer; // Set timer for the delay between advancing messages without an input
 
 // As mentioned later, actually using this timer causes issues
-Neotimer record_timer; // Set timer for when to go from just replaying a message to recording it
+Neotimer recordTimer; // Set timer for when to go from just replaying a message to recording it
 
 // Declare state machine and states
 //-------------------------------------------------------------------------------------
@@ -175,9 +175,12 @@ int playback_threshold = 510; // variable for checking the threshold to be in pl
 // TODO: replace the operators below with flags
 
 struct Flags {
-  bool advance_message : 1;
-  bool switch_scanning : 1;
-  bool recording_mode : 1;
+  bool advance_message : 1; // Stop playing a message and move to the next
+  bool switch_scanning : 1; // Indicate if in switch scanning or playing a message directly
+  bool recording_mode : 1; // Indicate if in recording or switch scanning mode
+  bool record_a_message : 1; // Transition to recording a message
+  bool record_playback : 1; // Playback a message from the recording mode
+  bool first_loop : 1; // Indicate if it's the first time through a loop
   // Add more flags here
 };
 Flags flags;
@@ -338,6 +341,12 @@ void waiting(){
 
 // State to play message. Might make more sense as a function than a state.
 void play_message(){
+  // Turn off all LEDs
+  digitalWrite(message_LEDs[0],LOW);
+  digitalWrite(message_LEDs[1],LOW);
+  digitalWrite(message_LEDs[2],LOW);
+  digitalWrite(message_LEDs[3],LOW);
+  
   while(digitalRead(message_buttons[which_switch]) == LOW){
     // Wait for switch to be released
   }
@@ -434,6 +443,12 @@ void play_message(){
     digitalWrite(current_message_LED,HIGH);
   }
 
+  // Turn off the recorded message playback variable if it was on
+
+  if(flags.record_playback){
+    flags.record_playback = false;
+  }
+
 }
 
 // Recording states. Note that they just blink the LED currently to have them do something.
@@ -441,9 +456,63 @@ void record_waiting(){
   // Blink the four message LEDs to indicate that it is in record mode.
   blink_all_LEDs();
 
+  // Check if a button has been pressed, then start the timer to check if it should get played back or recorded over
+
+    if((digitalRead(message_buttons[0]) == LOW) || (digitalRead(message_buttons[1]) == LOW) || (digitalRead(message_buttons[2]) == LOW) || (digitalRead(message_buttons[3]) == LOW)){
+      
+      // Do some prep that only needs to be completed once while the loop is running
+      if(flags.first_loop){
+      // Start timer to see if we should replay a message or start recording, based on the 
+      recordTimer = Neotimer(record_interval);
+      recordTimer.start();
+      // Turn off all LEDs
+      digitalWrite(message_LEDs[0],LOW);
+      digitalWrite(message_LEDs[1],LOW);
+      digitalWrite(message_LEDs[2],LOW);
+      digitalWrite(message_LEDs[3],LOW);
+      
+      // Step through the buttons to find out which one was pressed
+      for(int i = 0; i < 4; i++){
+        if (digitalRead(message_buttons[i]) == LOW){
+          which_switch = i;
+        }
+      }
+      file_number = which_switch;
+      strcpy(file,file_name[file_number]);
+      current_message_LED = message_LEDs[which_switch];
+      flags.switch_scanning = false;
+      flags.first_loop = false;
+      }
+
+        if(recordTimer.done()){
+          recordTimer.reset();
+          flags.record_a_message = true;
+          #ifdef DEBUG
+          Serial.println(F("Timer done, but still in while loop."));
+          #endif
+        }
+      // recordTimer.reset();
+      // flags.first_loop = true;
+      // flags.record_playback = true;
+  }
+
+  // Playback the message if the button was pressed but released before the timer was finished.
+
+  if((flags.first_loop == false) && (digitalRead(message_buttons[which_switch]) == HIGH)){
+    recordTimer.reset();
+    flags.first_loop = true;
+    flags.record_playback = true;
+  }
+
 }
 
 void record_message(){
+  
+  // Turn off all LEDs
+  digitalWrite(message_LEDs[0],LOW);
+  digitalWrite(message_LEDs[1],LOW);
+  digitalWrite(message_LEDs[2],LOW);
+  digitalWrite(message_LEDs[3],LOW);
   
   //Start the recording
   #ifdef DEBUG
@@ -462,6 +531,7 @@ void record_message(){
 
   //Stop the recording
   audio.stopRecording(file);
+
   
   #ifdef DEBUG
   Serial.println("Recording Stopped");
@@ -476,6 +546,8 @@ void record_message(){
     Serial.println(" wasn't saved to SD card"); 
   }
   #endif
+  flags.first_loop = true; // Reset the first loop flag
+  flags.record_a_message = false;
 
 }
 
@@ -517,32 +589,6 @@ bool transitionS0S1(){
         }
       }
 
-      // Write the file number and read the "file" variable to be sent to the play function
-      // else if (which_switch == 0){
-      //   file_number = 0;
-      //   strcpy(file,file_name[file_number]);
-      //   current_message_LED = message_LEDs[which_switch];
-      //   // Make sure switch scanning is false/reset if it wasn't already
-      //   flags.switch_scanning = false;
-      // }
-      // else if (which_switch == 1){
-      //   file_number = 1;
-      //   strcpy(file,file_name[file_number]);
-      //   current_message_LED = message_LEDs[which_switch];
-      //   flags.switch_scanning = false;
-      // }
-      // else if (which_switch == 2){
-      //   file_number = 2;
-      //   strcpy(file,file_name[file_number]);
-      //   current_message_LED = message_LEDs[which_switch];
-      //   flags.switch_scanning = false;
-      // }
-      // else if (which_switch == 3){
-      //   file_number = 3;
-      //   strcpy(file,file_name[file_number]);
-      //   current_message_LED = message_LEDs[which_switch];
-      //   flags.switch_scanning = false;
-      // }
       else {
         file_number = which_switch;
         strcpy(file,file_name[file_number]);
@@ -585,7 +631,7 @@ bool transitionS0S2(){
 }
 
 bool transitionS2S0(){
-  // Try this other method for the transition to see if the timer's the issue. Turns out it is not.
+
   if(flags.recording_mode && (analogRead(mode_ID)>=playback_threshold)){
 
     flags.recording_mode = false;
@@ -621,19 +667,39 @@ bool transitionS1S0(){
 
 bool transitionS2S1(){
 
+  if(flags.record_playback){
+    return true;
+  }
+  else{
+    return false;
+  }
+
 }
 
 // Create transition from recording waiting to recording a message
 
 bool transitionS2S3(){
-
+  if(flags.record_a_message){
+    #ifdef DEBUG
+      Serial.println(F("Transitioned to recording a message."));
+    #endif
+    return true;
+  }
+  else{
+    return false;
+  }
 
 }
 
 // Create transition from recording a message to recording waiting
 
 bool transitionS3S2(){
-
+  if(flags.record_a_message == false){
+    return true;
+  }
+  else{
+    return false;
+  }
 
 }
 
@@ -694,6 +760,9 @@ void setup() {
   flags.advance_message = false;
   flags.switch_scanning = false;
   flags.recording_mode = false;
+  flags.record_a_message = false;
+  flags.record_playback = false;
+  flags.first_loop = true;
   // Set transitions between states for the playback machine
   S0->addTransition(&transitionS0S1,S1); // Transition from waiting to playing a message
   S1->addTransition(&transitionS1S0,S0); // Transition from playing a message to waiting
