@@ -10,3 +10,19 @@ To do:
 - Implement recording messages in recording mode
 Roadblocks:
 - None today
+
+2025-06-18
+What I did:
+- Added playback of messages from the recording waiting, but need to adjust how it is entered
+- Added recording function. This works just fine.
+To do:
+- Update message playback so it works along with the recording function.
+- Record video of this all working
+
+2025-06-19
+What I did:
+- Added in playback function from recording mode
+To do:
+- Add in resistor ladders for choosing the level and playback speed
+- Add in code to handle playback speed changes
+- Add in code to handle level changes
