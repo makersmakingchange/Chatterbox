@@ -1,10 +1,10 @@
 /* 
-* File: Open_Playback_Recorder_Firmware.ino
+* File: Chatterbox_Firmware.ino
 * Developed by: MakersMakingChange
 * Version: v1.0 (02 February 2024)
   License: GPL v3.0 or later
 
-  Copyright (C) 2024 Neil Squire Society
+  Copyright (C) 2025 Neil Squire Society
   This program is free software: you can redistribute it and/or modify it under the terms of
   the GNU General Public License as published by the Free Software Foundation,
   either version 3 of the License, or (at your option) any later version.
@@ -101,8 +101,6 @@ Copyright (C) 2023-2024 Neil Squire Society
 TMRpcm audio;
 File myFile;
 Neotimer delayTimer; // Set timer for the delay between advancing messages without an input
-
-// As mentioned later, actually using this timer causes issues
 Neotimer recordTimer; // Set timer for when to go from just replaying a message to recording it
 
 // Declare state machine and states
@@ -166,13 +164,12 @@ char file_name3[][12]{"rec_3_1.wav", "rec_3_2.wav", "rec_3_3.wav", "rec_3_4.wav"
 char file [12];
 
 // Other variables
-int playback_threshold = 510; // variable for checking the threshold to be in playback vs record mode
-
+const int playback_threshold = 510; // variable for checking the threshold to be in playback vs record mode
+const int level_threshold[2] = {310, 510}; // Variable for checking the level to run based on the ouptut of a resistor ladder
+const int speed_threshold[2] = {310, 510}; // Variable for changing the delay time between messages based on the ouptut of a resistor ladder
 
 // Boolean values for triggering transitions
 //-----------------------------------------------------------------------------------------------------
-
-// TODO: replace the operators below with flags
 
 struct Flags {
   bool advance_message : 1; // Stop playing a message and move to the next
@@ -185,7 +182,7 @@ struct Flags {
 };
 Flags flags;
 
-bool play_transition[2] = {false, false}; // Add explanation of this**********************************
+bool play_transition[2] = {false, false}; // Tracks the state of messages playing. It stores the previous state (false for not playing, true for playing) and can compare that to the current state.
 
 //------------------------------------------------------------------------------------------------------
 // Functions
@@ -229,32 +226,14 @@ void blink_all_LEDs(){
   }
 }
 
-// Delay timing function
+// Check and set the level the messages are on
+void check_level(){
 
-bool delay_timing(){
-  currentMillis = millis();
-
-  if(currentMillis - previousMillis >= delay_interval){
-    previousMillis = currentMillis;
-    return true;
-  }
-  else{
-    return false;
-  }
 }
 
-// Record timing function
+// Check and set the delay between advancing to the next message while switch scanning
+void check_delay_duration(){
 
-bool record_timing(){
-  record_millis = millis();
-
-  if(record_millis - record_previous_millis >= record_interval){
-    record_previous_millis = record_millis;
-    return true;
-  }
-  else{
-    return false;
-  }
 }
 
 // Checking memory function for debugging. Output free RAM in bytes.
@@ -274,7 +253,9 @@ void waiting(){
 
   #ifdef DEBUG
     Serial.print(analogRead(mode_ID));
-    Serial.println(F(" Analog pin reading"));
+    Serial.println(F(" Mode pin reading"));
+    Serial.print(analogRead(level_ID));
+    Serial.println(F(" Level pin reading"));
   #endif
   
   // Handling switch scanning (waiting for input and/or advancing message)
@@ -709,11 +690,11 @@ void setup() {
   Serial.begin(9600);
 
   // TO DO: Add a timeout because if this isn't connected to a computer it won't work.
-  #ifdef DEBUG
-  while (!Serial) {
-    // wait for serial port to connect
-  }
-  #endif 
+  // #ifdef DEBUG
+  // while (!Serial) {
+  //   // wait for serial port to connect
+  // }
+  // #endif 
 
   //Define pins
   pinMode(message_LEDs[0], OUTPUT);
@@ -729,6 +710,7 @@ void setup() {
   pinMode(switch_advance_button,INPUT_PULLUP);
   pinMode(mode_ID,INPUT); // Input mode for the analog pin to read the resistor ladder for the mode
   pinMode(level_ID,INPUT); // Input for the analog read pint to read the resistor ladder for the level
+  pinMode(speed_ID,INPUT);
   //audio.CSPin = 10;
   audio.speakerPin = 9;
   audio.volume(5);
