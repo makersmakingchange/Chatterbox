@@ -138,7 +138,7 @@ const int message_LEDs[4] = {A1, A2, A3, A4}; // Array for the message LED pins 
 // Declare variables
 //-----------------------------------------------------------------------------------------
 // Timing variables
-unsigned long delay_interval = 3000;
+const long delay_intervals[3] = {3000, 5000, 7000}; // Set how long the delay is between playbacks in ms.
 const long blinkInterval = 500;
 unsigned long record_interval = 1000;
 unsigned long previousMillis = 0; // TODO: check if using Neotimer library or this is bigger. Use only one.
@@ -232,8 +232,16 @@ void check_level(){
 }
 
 // Check and set the delay between advancing to the next message while switch scanning
-void check_delay_duration(){
-
+long check_delay_duration(){
+  if(analogRead(speed_ID) <= speed_threshold[1]){
+    return delay_intervals[0];
+  }
+  else if(analogRead(speed_ID) >= speed_threshold[2]){
+    return delay_intervals[2];
+  }
+  else{
+    return delay_intervals[1];
+  }
 }
 
 // Checking memory function for debugging. Output free RAM in bytes.
@@ -419,7 +427,8 @@ void play_message(){
   // Start the delay timer for waiting between playing messages if in switch scanning.
   if(flags.switch_scanning){
     // Will need to make thing to read timer interval later
-    delayTimer = Neotimer(delay_interval);
+    // delayTimer = Neotimer(delay_interval);
+    delayTimer = Neotimer(check_delay_duration());
     delayTimer.start();
     digitalWrite(current_message_LED,HIGH);
   }
