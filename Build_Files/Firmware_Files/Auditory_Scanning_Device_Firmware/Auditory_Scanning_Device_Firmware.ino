@@ -143,30 +143,24 @@ const long blinkInterval = 500;
 unsigned long record_interval = 1000;
 unsigned long previousMillis = 0; // TODO: check if using Neotimer library or this is bigger. Use only one.
 unsigned long currentMillis = 0;
-unsigned long record_millis = 0;
-unsigned long record_previous_millis = 0;
+// unsigned long record_millis = 0;
+// unsigned long record_previous_millis = 0;
 
 //File properties
 int file_number =0;
 int file_level {1};
-int old_level = {1};
 int current_message {1};
 const int sample_rate {16000};
-int old_file_level {1};
 const int message_total = 3; // Total number of messages to be stored on any one level
 int LEDState = LOW;
 int which_switch = -1;
-int previous_file_number = 1; // Store previous file number to check if it's the same switch being pressed again
 // Hard code in the file variable name
-char file_name[][12]{"rec_1_1.wav", "rec_1_2.wav", "rec_1_3.wav", "rec_1_4.wav"}; // Level 1 filename
-char file_name2[][12]{"rec_2_1.wav", "rec_2_2.wav", "rec_2_3.wav", "rec_2_4.wav"}; // Level 2 filename
-char file_name3[][12]{"rec_3_1.wav", "rec_3_2.wav", "rec_3_3.wav", "rec_3_4.wav"}; // Level 3 filename
+char file_ends[][7]{"_1.wav", "_2.wav", "_3.wav", "_4.wav"};
 char file [12];
 
 // Other variables
 const int playback_threshold = 510; // variable for checking the threshold to be in playback vs record mode
-const int level_threshold[2] = {310, 510}; // Variable for checking the level to run based on the ouptut of a resistor ladder
-const int speed_threshold[2] = {310, 510}; // Variable for changing the delay time between messages based on the ouptut of a resistor ladder
+const int threshold[2] = {300, 510}; // Variable for checking the level to run and changing delay between messages based on the ouptut of a resistor ladder
 
 // Boolean values for triggering transitions
 //-----------------------------------------------------------------------------------------------------
@@ -227,16 +221,31 @@ void blink_all_LEDs(){
 }
 
 // Check and set the level the messages are on
-void check_level(){
+char check_level(){
 
+  if(analogRead(level_ID) <= threshold[0]){
+    strcpy(file,"rec_1");
+    strcat(file,file_ends[file_number]);
+    return file;
+  }
+  else if(analogRead(level_ID) >= threshold[1]){
+    strcpy(file,"rec_3");
+    strcat(file,file_ends[file_number]);
+    return file;
+  }
+  else{
+    strcpy(file,"rec_2");
+    strcat(file,file_ends[file_number]);
+    return file;
+  }
 }
 
 // Check and set the delay between advancing to the next message while switch scanning
 long check_delay_duration(){
-  if(analogRead(speed_ID) <= speed_threshold[1]){
+  if(analogRead(speed_ID) <= threshold[0]){
     return delay_intervals[0];
   }
-  else if(analogRead(speed_ID) >= speed_threshold[2]){
+  else if(analogRead(speed_ID) >= threshold[1]){
     return delay_intervals[2];
   }
   else{
@@ -264,6 +273,8 @@ void waiting(){
     Serial.println(F(" Mode pin reading"));
     Serial.print(analogRead(level_ID));
     Serial.println(F(" Level pin reading"));
+    Serial.print(analogRead(speed_ID));
+    Serial.println(F(" Speed pin reading"));
   #endif
   
   // Handling switch scanning (waiting for input and/or advancing message)
@@ -276,7 +287,8 @@ void waiting(){
       if(file_number < message_total){
       digitalWrite(current_message_LED,LOW);
       file_number += 1;
-      strcpy(file,file_name[file_number]);
+      // strcpy(file,file_name[file_number]);
+      check_level();
       current_message_LED = message_LEDs[file_number];
       flags.advance_message = true;
       delayTimer.reset();
@@ -298,7 +310,8 @@ void waiting(){
       }
       if(file_number < message_total){
       file_number += 1;
-      strcpy(file,file_name[file_number]);
+      // strcpy(file,file_name[file_number]);
+      check_level();
       current_message_LED = message_LEDs[file_number];
       flags.advance_message = true;
       delayTimer.reset();
@@ -348,11 +361,9 @@ void play_message(){
     Serial.println(file);
     // Serial.print(" File Number: ");
     // Serial.print(file_number);
-    // Serial.print(" Previous: ");
-    // Serial.println(previous_file_number);
-    Serial.println(flags.switch_scanning);
-    Serial.println(digitalRead(message_buttons[which_switch]));
-    Serial.println(which_switch);
+    // Serial.println(flags.switch_scanning);
+    // Serial.println(digitalRead(message_buttons[which_switch]));
+    // Serial.println(which_switch);
     Serial.print(F("Free memory: "));
     Serial.println(freeMemory());
   #endif
@@ -388,7 +399,8 @@ void play_message(){
       if(file_number < message_total){
       file_number += 1;
       current_message_LED = message_LEDs[file_number];
-      strcpy(file,file_name[file_number]);
+      // strcpy(file,file_name[file_number]);
+      check_level();
       flags.advance_message = true;
       delayTimer.reset();
       }
@@ -468,7 +480,8 @@ void record_waiting(){
         }
       }
       file_number = which_switch;
-      strcpy(file,file_name[file_number]);
+      // strcpy(file,file_name[file_number]);
+      check_level();
       current_message_LED = message_LEDs[which_switch];
       flags.switch_scanning = false;
       flags.first_loop = false;
@@ -549,7 +562,6 @@ bool transitionS0S1(){
   // Transition to playing if any of the direct message buttons or the switch scanning button are pressed.
   if((digitalRead(message_buttons[0]) == LOW) || (digitalRead(message_buttons[1]) == LOW) || (digitalRead(message_buttons[2]) == LOW) || (digitalRead(message_buttons[3]) == LOW) || (digitalRead(message_buttons[4]) == LOW)){
     which_switch = -1; // Variable to store which switch is pressed
-    previous_file_number = file_number; // Checking if we are repeating a file
 
     // Step through the buttons to find out which one was pressed
       for(int i = 0; i < 5; i++){
@@ -565,7 +577,8 @@ bool transitionS0S1(){
           file_number = 0; 
           current_message_LED = message_LEDs[0];
           flags.switch_scanning = true; // Turn on the switch scanning variable to track that we are switch scanning when we go into the play button transitions.
-          strcpy(file,file_name[file_number]);
+          // strcpy(file,file_name[file_number]);
+          check_level();
           #ifdef DEBUG
             Serial.println(F("Start switch scanning"));
           #endif
@@ -581,7 +594,8 @@ bool transitionS0S1(){
 
       else {
         file_number = which_switch;
-        strcpy(file,file_name[file_number]);
+        // strcpy(file,file_name[file_number]);
+        check_level();
         current_message_LED = message_LEDs[which_switch];
         flags.switch_scanning = false;
       }
