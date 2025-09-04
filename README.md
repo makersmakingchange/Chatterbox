@@ -20,7 +20,7 @@ Any text that is currently holding a space / is an instruction for the person fi
 --->
  
 <!--- TITLE --->
-# Auditory Scanning Device
+# Chatterbox
 
 ## Overview
 <!--- A brief summary of the project. What it does, who it is for, how much it costs. --->
