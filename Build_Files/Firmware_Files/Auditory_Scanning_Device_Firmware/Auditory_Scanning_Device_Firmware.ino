@@ -143,6 +143,7 @@ const long blinkInterval = 500;
 unsigned long record_interval = 1000;
 unsigned long previousMillis = 0; // TODO: check if using Neotimer library or this is bigger. Use only one.
 unsigned long currentMillis = 0;
+const unsigned long debounce_delay = 50; // Debouncing delay time
 // unsigned long record_millis = 0;
 // unsigned long record_previous_millis = 0;
 
@@ -268,14 +269,14 @@ int freeMemory() {
 void waiting(){
 // Read inputs, blink LEDs. Make the transition here: check if I have an input, if the audio is playing, etc.
 
-  #ifdef DEBUG
-    Serial.print(analogRead(mode_ID));
-    Serial.println(F(" Mode pin reading"));
-    Serial.print(analogRead(level_ID));
-    Serial.println(F(" Level pin reading"));
-    Serial.print(analogRead(speed_ID));
-    Serial.println(F(" Speed pin reading"));
-  #endif
+  // #ifdef DEBUG
+  //   Serial.print(analogRead(mode_ID));
+  //   Serial.println(F(" Mode pin reading"));
+  //   Serial.print(analogRead(level_ID));
+  //   Serial.println(F(" Level pin reading"));
+  //   Serial.print(analogRead(speed_ID));
+  //   Serial.println(F(" Speed pin reading"));
+  // #endif
   
   // Handling switch scanning (waiting for input and/or advancing message)
   if(flags.switch_scanning){
@@ -305,6 +306,7 @@ void waiting(){
 
     // If the advance switch is pressed, then advance to the next message if it's within the message total
     if(digitalRead(switch_advance_button) == LOW){
+      delay(debounce_delay);
       while(digitalRead(switch_advance_button) == LOW){
         // wait for the switch to be released
       }
@@ -327,6 +329,7 @@ void waiting(){
 
     // If the switch scanning button is pressed again, replay the current message and stop switch scanning.
     else if(digitalRead(switch_scan_button) == LOW){
+      delay(debounce_delay);
       while(digitalRead(switch_scan_button) == LOW){
         // wait for the switch to be released
       }
@@ -382,12 +385,14 @@ void play_message(){
 
     // Interrupt playing if another button is pressed, and start playing that message instead.
     if((digitalRead(message_buttons[0]) == LOW) || (digitalRead(message_buttons[1]) == LOW) || (digitalRead(message_buttons[2]) == LOW) || (digitalRead(message_buttons[3]) == LOW)){
+      delay(debounce_delay);
       play_transition[1] = play_transition[2];
       play_transition[2] = audio.isPlaying();
       audio.stopPlayback(); // Stop current audio
     }
     // Interrupt playing if the switch advance button is pressed and advance message
     else if((digitalRead(switch_advance_button) == LOW) && flags.switch_scanning){
+      delay(debounce_delay);
       digitalWrite(current_message_LED,LOW);
       play_transition[1] = play_transition[2];
       play_transition[2] = audio.isPlaying();
@@ -414,6 +419,7 @@ void play_message(){
     }
     // If the switch scan button is pressed while switch scanning, replay the message
     else if((digitalRead(switch_scan_button) == LOW) && flags.switch_scanning){
+            delay(debounce_delay);
             while(digitalRead(switch_scan_button) == LOW){
         // wait for the switch to be released
       }
@@ -561,6 +567,7 @@ void record_message(){
 bool transitionS0S1(){
   // Transition to playing if any of the direct message buttons or the switch scanning button are pressed.
   if((digitalRead(message_buttons[0]) == LOW) || (digitalRead(message_buttons[1]) == LOW) || (digitalRead(message_buttons[2]) == LOW) || (digitalRead(message_buttons[3]) == LOW) || (digitalRead(message_buttons[4]) == LOW)){
+    delay(debounce_delay);
     which_switch = -1; // Variable to store which switch is pressed
 
     // Step through the buttons to find out which one was pressed
