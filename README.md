@@ -24,15 +24,15 @@ Any text that is currently holding a space / is an instruction for the person fi
 
 ## Overview
 <!--- A brief summary of the project. What it does, who it is for, how much it costs. --->
-The Chatterbox is an assistive technology device that <INSERT DESCRIPTION FROM THE OUTLINE OF The DEVICE>. 
+The Chatterbox is an Augmented and Alternative Communication (AAC) device that allows users to play pre-recorded messages using single or dual switch scanning. The Chatterbox provides auditory and visual feedback to indicate the message a user can play. 
 
-<MODIFY LINE AS NECESSARY> The device is comprised of off-the-shelf electronics and 3D printed parts. 
+The Chatterbox is comprised of off-the-shelf electronics and 3D printed parts. 
 
 The Chatterbox is open assistive technology (OpenAT). Under the terms of the open source licenses, the device may be built, used, and improved upon by anyone.
 
-The overall cost of materials is about $<MaterialCost> (plus $<ShippingCost> for component shipping).
+The overall cost of materials is about $135.
 
-<img src="Photos/Chatterbox.jpg" width="500" alt="Picture of <DeviceName>.">
+<img src="Photos/Chatterbox_Image.jpg" width="500" alt="Picture of the Chatterbox.">
 
 ## Makers Making Change Assistive Device Library
 <MMCWebLink>
@@ -63,12 +63,15 @@ The [Maker Guide](/Documentation/Chatterbox_Maker_Guide.pdf)  contains all the n
 
 The [Bill of Materials](/Documentation/Chatterbox_BOM.xlsx) lists all of the parts and components required to build the device.
 
+### 3. Order the custom PCBS
 
-### 3. Print the 3D Printable components
+The [PCB Files](/Build_Files/PCB_Build_Files) contain the Gerber files needed to order the PCBs, and instructions on how to order them can be found in the [Maker Guide](/Documentation/Chatterbox_Maker_Guide.pdf).
+
+### 4. Print the 3D Printable components
 
 All of the files and individual print files can be found in the [/Build_Files/3D_Printing_Files](/Build_Files/3D_Printing_Files/) folder.
 
-### 4. Assemble the <DeviceName>
+### 5. Assemble the Chatterbox
 
 Reference the Assembly Guide section of the [Maker Guide](/Documentation/Chatterbox_Maker_Guide.pdf) for the tools and steps required to build the device.
 
@@ -100,10 +103,10 @@ As open source assistive technology, you are welcomed and encouraged to improve 
 
 ## License
 <!--- Add the year(s) for the copyright and the Designer Name. You may use the standard set of open licenses or choose your own for the hardware, software, and accompanying materials. --->
-Copyright (c) <YEAR> <DesignerName>.
+Copyright (c) 2025, Neil Squire.
 
 This repository describes Open Hardware:
- - Everything needed or used to design, make, test, or prepare the <DeviceName> is licensed under the [CERN 2.0 Weakly Reciprocal license (CERN-OHL-W v2) or later](https://cern.ch/cern-ohl ) .
+ - Everything needed or used to design, make, test, or prepare the Chatterbox is licensed under the [CERN 2.0 Weakly Reciprocal license (CERN-OHL-W v2) or later](https://cern.ch/cern-ohl ) .
  - All software is under the [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl.html).
  - Accompanying material such as instruction manuals, videos, and other copyrightable works that are useful but not necessary to design, make, test, or prepare the <Device-Name> are published under a [Creative Commons Attribution-ShareAlike 4.0 license (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/) .
 
@@ -111,11 +114,11 @@ You may redistribute and modify this documentation and make products using it un
 This documentation is distributed WITHOUT ANY EXPRESS OR IMPLIED WARRANTY, INCLUDING OF MERCHANTABILITY, SATISFACTORY QUALITY AND FITNESS FOR A PARTICULAR PURPOSE.
 Please see the CERN-OHL-W v2 for applicable conditions.
 
-Source Location: <Repository_Link> 
+Source Location: [Chatterbox Repository](https://github.com/makersmakingchange/Chatterbox)
 
 ## Attribution
 <!--- Provide any necessary attribution for designs or components that are included in the device or as part of the project. --->
-The device was designed by <DesignerName>. 
+The device was designed by Stephan Dobri for Neil Squire. It was based on the [Open Playback Recorder](https://github.com/makersmakingchange/Open-Playback-Recorder), from Neil Squire.
 
 <!--- This is the attribution for the template. --->
 The documentation template was created by Makers Making Change / Neil Squire Society and is used under a CC BY-SA 4.0 license. It is available at the following link: [https://github.com/makersmakingchange/OpenAT-Template](https://github.com/makersmakingchange/OpenAT-Template)
@@ -123,8 +126,8 @@ The documentation template was created by Makers Making Change / Neil Squire Soc
 ### Contributors
 <!--- List the names of the people that contributed to the design. This could include the original source of the idea, designers, testers, documenters, etc. --->
 Designers:
- - <DESIGNER 1>
- - <DESIGNER 2>
+ - Stephan Dobri
+ - Jake McIvor
 
 Testers:
  - <TESTER 1>
