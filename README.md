@@ -24,15 +24,15 @@ Any text that is currently holding a space / is an instruction for the person fi
 
 ## Overview
 <!--- A brief summary of the project. What it does, who it is for, how much it costs. --->
-The <DeviceName> is an assistive technology device that <INSERT DESCRIPTION FROM THE OUTLINE OF The DEVICE>. 
+The Chatterbox is an assistive technology device that <INSERT DESCRIPTION FROM THE OUTLINE OF The DEVICE>. 
 
 <MODIFY LINE AS NECESSARY> The device is comprised of off-the-shelf electronics and 3D printed parts. 
 
-The <DeviceName> is open assistive technology (OpenAT). Under the terms of the open source licenses, the device may be built, used, and improved upon by anyone.
+The Chatterbox is open assistive technology (OpenAT). Under the terms of the open source licenses, the device may be built, used, and improved upon by anyone.
 
 The overall cost of materials is about $<MaterialCost> (plus $<ShippingCost> for component shipping).
 
-<img src="Photos/<Device_Name>.jpg" width="500" alt="Picture of <DeviceName>.">
+<img src="Photos/Chatterbox.jpg" width="500" alt="Picture of <DeviceName>.">
 
 ## Makers Making Change Assistive Device Library
 <MMCWebLink>
@@ -56,12 +56,12 @@ If you have the skills and equipment to build this device, and would like to don
 
 ### 1. Read through the Maker Guide
 
-The [Maker Guide](/Documentation/<Device_Name>_Maker_Guide.pdf)  contains all the necessary information to build this device, including tool lists, assembly instructions, programming instructions (if applicable) and testing.
+The [Maker Guide](/Documentation/Chatterbox_Maker_Guide.pdf)  contains all the necessary information to build this device, including tool lists, assembly instructions, programming instructions (if applicable) and testing.
 
 
 ### 2. Order the Off-The-Shelf Components
 
-The [Bill of Materials](/Documentation/<Device_Name>_BOM.xlsx) lists all of the parts and components required to build the device.
+The [Bill of Materials](/Documentation/Chatterbox_BOM.xlsx) lists all of the parts and components required to build the device.
 
 
 ### 3. Print the 3D Printable components
@@ -70,7 +70,7 @@ All of the files and individual print files can be found in the [/Build_Files/3D
 
 ### 4. Assemble the <DeviceName>
 
-Reference the Assembly Guide section of the [Maker Guide](/Documentation/<Device_Name>_Maker_Guide.pdf) for the tools and steps required to build the device.
+Reference the Assembly Guide section of the [Maker Guide](/Documentation/Chatterbox_Maker_Guide.pdf) for the tools and steps required to build the device.
 
 ## How to improve this Device
 As open source assistive technology, you are welcomed and encouraged to improve upon the design. 
@@ -80,10 +80,10 @@ As open source assistive technology, you are welcomed and encouraged to improve 
 <!--- Update the name, link, and version for documentation --->
 | Document             | Version | Link |
 |----------------------|---------|------|
-| Design Rationale     | 1.0     | [<Device_Name>_Design_Rationale](/Documentation/<Device_Name>_Design_Rationale.pdf)     |
-| Maker Guide          | 1.0     | [<Device_Name>_Maker_Guide](/Documentation/<Device_Name>_Maker_Guide.pdf)     |
-| Bill of Materials    | 1.0     | [<Device_Name>_Bill_of_Materials](/Documentation/<Device_Name>_BOM.xlsx)     |
-| User Guide           | 1.0     | [<Device_Name>_User_Guide](/Documentation/<Device_Name>_User_Guide.pdf)    |
+| Design Rationale     | 1.0     | [Chatterbox_Design_Rationale](/Documentation/Chatterbox_Design_Rationale.pdf)     |
+| Maker Guide          | 1.0     | [Chatterbox_Maker_Guide](/Documentation/Chatterbox_Maker_Guide.pdf)     |
+| Bill of Materials    | 1.0     | [Chatterbox_Bill_of_Materials](/Documentation/Chatterbox_BOM.xlsx)     |
+| User Guide           | 1.0     | [Chatterbox_User_Guide](/Documentation/Chatterbox_User_Guide.pdf)    |
 | Changelog            | 1.0     | [Changelog](CHANGES.txt)     |
 
 ### Design Files
