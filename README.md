@@ -32,7 +32,7 @@ The Chatterbox is open assistive technology (OpenAT). Under the terms of the ope
 
 The overall cost of materials is about $135.
 
-<img src="Photos/Chatterbox_Image.jpg" width="500" alt="Picture of the Chatterbox.">
+<img src="Photos/Chatterbox_Image.jpeg" width="500" alt="Picture of the Chatterbox.">
 
 ## Makers Making Change Assistive Device Library
 <MMCWebLink>
