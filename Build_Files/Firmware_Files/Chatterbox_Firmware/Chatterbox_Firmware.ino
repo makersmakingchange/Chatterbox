@@ -1,7 +1,7 @@
 /* 
 * File: Chatterbox_Firmware.ino
 * Developed by: MakersMakingChange
-* Version: v1.0 (02 February 2024)
+* Version: v1.0 (13 November, 2025)
   License: GPL v3.0 or later
 
   Copyright (C) 2025 Neil Squire Society
@@ -14,32 +14,25 @@
   You should have received a copy of the GNU General Public License along with this program.
   If not, see <http://www.gnu.org/licenses/>
 
-<<<<<<<< HEAD:Build_Files/Firmware_Files/Open_Playback_Switch_Firmware/Open_Playback_Recorder_Firmware.ino
-  The Open Playback Button is an assistive technology device capable of recording voice messages and storing them for future playback.   
-  Messages can be recorded after entering record mode by holding the record button for 2 seconds. In record mode, multiple messages can be recorded to a micro SD 
-  card by pressing and holding the play button before pressing the record button again to exit record mode. The stored
-  messages can then be played back with each press of the play button. An external button can be plugged into a 3.5 mm
-  mono jack to act as an accessible play button.  
+<<<<<<<< HEAD:Build_Files/Firmware_Files/Chatterbox_Firmware/Chatterbox_Firmware.ino
+  The Chatterbox is an assistive device for augmented and alternative communication (AAC). Users can record messages on each button, 
+  then use external switches plugged into 3.5 mm mono jacks to switch scan through the message options. There are also holders for 
+  images that a user can place behind each button to represent the message recorded on that button.
 ========
 
-  The Open Playback Button is a device capable of recording voice messages and storing them for future playback.   
-  This code will showcase the basic functionality of the device. Messages can be recorded after entering record 
-  mode by holding the record button for 2 seconds. In record mode, multiple messages can be recorded to a micro SD 
-  card by pressing and holding the play button before pressing the record button again to exit record mode. The stored
-  messages can then be played back with each press of the play button. An external button can be plugged into a 3.5 mm
-  mono jack to act as an accessible play button.  
-
-  July 25, 2023
-  Brad Wellington
-
-  Updating code to work with the new microcontroller and include the 3 levels or recordings
+  November 13, 2025
+  Stephan Dobri
 
   Components:
 
-  Play button
-  Record button
-  Volume potentiometer with on/off switch
-  play/rec leds
+  Direct access message buttons
+  Mode slide switch
+  Delay slide switch
+  Level slide switch
+  3.5 mm mono jacks
+  Message LEDs
+  Power slide switch
+  Volume potentiometer
   3.5 mono jack
 
   Microphone and Amp
@@ -66,32 +59,16 @@
       A+  -----------> D9 (Through Vol Pot)
       +   -----------> Speaker postive
       -   -----------> Speaker negitive
-      
-  File: Open_Playback_Recorder_Firmware.ino
-  Developed by: Makers Making Change
-  Version: V2.0(17 July 2024)
-  License: GPL v3
   
-Copyright (C) 2023-2024 Neil Squire Society
-  This program is free software: you can redistribute it and/or modify it under the terms of
-  the GNU General Public License as published by the Free Software Foundation,
-  either version 3 of the License, or (at your option) any later version.
-  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the GNU General Public License for more details.
-  You should have received a copy of the GNU General Public License along with this program.
-  If not, see <http://www.gnu.org/licenses/>
-  
->>>>>>>> PCB-Version:Build_Files/Firmware_Files/Open_Playback_Recorder_Firmware/Open_Playback_Recorder_Firmware.ino
 */
 
 // Add libraries
 //-----------------------------------------------------------------------------------
 #include <TMRpcm.h>  // Message recording and playback library
-#include <SD.h> // Libary
+#include <SD.h> // SD card library
 #include <SPI.h>
-#include <StateMachine.h>
-#include <neotimer.h>
+#include <StateMachine.h> // Library for running state machines
+#include <neotimer.h> // Timer library for use with state machine library
 
 // Debugging line
 #define DEBUG
@@ -115,16 +92,10 @@ State* S3 = play_machine.addState(&record_message); // State for when we're reco
 // TODO: Use define statements instead of constants to reduce memory. ex: #define CONSTANT_VALUE 2, where 2 is a value
 //Additional Arduino connections
 //----------------------------------------------------------------------------------------
-const int mic {A0};
+const int mic {A0}; // Pin connected to the mic
 const int switch_advance_button {2}; // Button to advance to the next message when switch scanning
-const int message_button_1 {3}; // Button to play/record first message
-const int message_button_2 {4}; // Button to play/record second message
-const int message_button_3 {5}; // Button to play/record third message
-const int message_button_4 {6}; // Button to play/record fourth message
 const int switch_scan_button {7}; // Button to start switch scanning/select a message
 const int speaker_shutdown {8};
-const int message_LED_3 {A3}; // Message 3 LED output
-const int message_LED_4 {A4}; // Message 4 LED output
 const int mode_ID {A5}; // analog input pin to read if it's in playback or recording mode
 const int level_ID {A6}; // analog input pin to read which level is selected
 const int speed_ID {A7}; // analog input pin to read which playback speed is selected
@@ -138,26 +109,24 @@ const int message_LEDs[4] = {A1, A2, A3, A4}; // Array for the message LED pins 
 // Declare variables
 //-----------------------------------------------------------------------------------------
 // Timing variables
-const long delay_intervals[3] = {3000, 5000, 7000}; // Set how long the delay is between playbacks in ms.
-const long blinkInterval = 500;
-unsigned long record_interval = 1000;
-unsigned long previousMillis = 0; // TODO: check if using Neotimer library or this is bigger. Use only one.
-unsigned long currentMillis = 0;
-const unsigned long debounce_delay = 50; // Debouncing delay time
-// unsigned long record_millis = 0;
-// unsigned long record_previous_millis = 0;
+const long delay_intervals[3] = {2000, 4000, 6000}; // Set how long the delay is between playbacks, in ms.
+const long blinkInterval = 500; // Set the interval of blinking LEDs, in ms
+unsigned long record_interval = 1000; // Set how long someone has to hold a button to start recording on it, in ms.
+unsigned long previousMillis = 0; // Variable for timing LED blinking
+unsigned long currentMillis = 0; // Variable for timing LED blinking
+const unsigned long debounce_delay = 50; // Debouncing delay time, in ms
 
 //File properties
-int file_number =0;
-int file_level {1};
-int current_message {1};
-const int sample_rate {16000};
-const int message_total = 3; // Total number of messages to be stored on any one level
-int LEDState = LOW;
-int which_switch = -1;
+int file_number =0; // Variable for which file will be recorded or played
+int file_level {1}; // Variable for which level is selected
+int current_message {1}; // Variable to store which message number is being played or recorded
+const int sample_rate {16000}; // Sampling rate for the mic when recording messages
+const int message_total = 3; // Indexing variable for the last position in the message array (3 is the fourth message, as indexing starts at 0).
+int LEDState = LOW; // Variable for turning LEDs on or off
+int which_switch = -1; // Variable to identify which of the switches have been hit for playing back or recording messages.
 // Hard code in the file variable name
-char file_ends[][7]{"_1.wav", "_2.wav", "_3.wav", "_4.wav"};
-char file [12];
+char file_ends[][7]{"_1.wav", "_2.wav", "_3.wav", "_4.wav"}; // Ending of the file names the Chatterbox records / recognizes
+char file [12]; // Variable to call the file to record or play back
 
 // Other variables
 const int playback_threshold = 510; // variable for checking the threshold to be in playback vs record mode
@@ -224,24 +193,25 @@ void blink_all_LEDs(){
 // Check and set the level the messages are on
 char check_level(){
 
-  if(analogRead(level_ID) <= threshold[0]){
-    strcpy(file,"rec_1");
-    strcat(file,file_ends[file_number]);
+  if(analogRead(level_ID) <= threshold[0]){ // Check if resistor ladder reading is below the first threshold value
+    strcpy(file,"rec_1"); // Set the first part of the file variable for being in Level 1
+    strcat(file,file_ends[file_number]); // Append the endings of the file numbers
     return file;
   }
-  else if(analogRead(level_ID) >= threshold[1]){
-    strcpy(file,"rec_3");
-    strcat(file,file_ends[file_number]);
+  else if(analogRead(level_ID) >= threshold[1]){ // Check if resistor ladder reading is above the second threshold value
+    strcpy(file,"rec_3"); // Set the first part of the file variable for being in Level 3
+    strcat(file,file_ends[file_number]); // Append the endings of the file numbers
     return file;
   }
-  else{
-    strcpy(file,"rec_2");
-    strcat(file,file_ends[file_number]);
+  else{ // Last remaining option where the resitor ladder reading is between the two threshold values
+    strcpy(file,"rec_2"); // Set the first part of the file variable for being in Level 2
+    strcat(file,file_ends[file_number]); // Append the endings of the file numbers
     return file;
   }
 }
 
 // Check and set the delay between advancing to the next message while switch scanning
+// This function works exactly as the check_level function, but sets the delay value
 long check_delay_duration(){
   if(analogRead(speed_ID) <= threshold[0]){
     return delay_intervals[0];
@@ -281,14 +251,11 @@ void waiting(){
   // Handling switch scanning (waiting for input and/or advancing message)
   if(flags.switch_scanning){
 
-    // NOTE: Will need to read the interval later, rather than hard coded.
-
     // If the timer ends without an input, advance to the next message if it's within the message count total.
     if(delayTimer.done()){
       if(file_number < message_total){
       digitalWrite(current_message_LED,LOW);
       file_number += 1;
-      // strcpy(file,file_name[file_number]);
       check_level();
       current_message_LED = message_LEDs[file_number];
       flags.advance_message = true;
@@ -312,7 +279,6 @@ void waiting(){
       }
       if(file_number < message_total){
       file_number += 1;
-      // strcpy(file,file_name[file_number]);
       check_level();
       current_message_LED = message_LEDs[file_number];
       flags.advance_message = true;
@@ -404,7 +370,6 @@ void play_message(){
       if(file_number < message_total){
       file_number += 1;
       current_message_LED = message_LEDs[file_number];
-      // strcpy(file,file_name[file_number]);
       check_level();
       flags.advance_message = true;
       delayTimer.reset();
@@ -444,8 +409,6 @@ void play_message(){
 
   // Start the delay timer for waiting between playing messages if in switch scanning.
   if(flags.switch_scanning){
-    // Will need to make thing to read timer interval later
-    // delayTimer = Neotimer(delay_interval);
     delayTimer = Neotimer(check_delay_duration());
     delayTimer.start();
     digitalWrite(current_message_LED,HIGH);
@@ -459,7 +422,7 @@ void play_message(){
 
 }
 
-// Recording states. Note that they just blink the LED currently to have them do something.
+// Recording states.
 void record_waiting(){
   // Blink the four message LEDs to indicate that it is in record mode.
   blink_all_LEDs();
@@ -470,7 +433,7 @@ void record_waiting(){
       
       // Do some prep that only needs to be completed once while the loop is running
       if(flags.first_loop){
-      // Start timer to see if we should replay a message or start recording, based on the 
+      // Start timer to see if we should replay a message or start recording
       recordTimer = Neotimer(record_interval);
       recordTimer.start();
       // Turn off all LEDs
@@ -486,13 +449,12 @@ void record_waiting(){
         }
       }
       file_number = which_switch;
-      // strcpy(file,file_name[file_number]);
       check_level();
       current_message_LED = message_LEDs[which_switch];
       flags.switch_scanning = false;
       flags.first_loop = false;
       }
-
+        // Check if the time has passed, and if it has, go into recording
         if(recordTimer.done()){
           recordTimer.reset();
           flags.record_a_message = true;
@@ -500,9 +462,7 @@ void record_waiting(){
           Serial.println(F("Timer done, but still in while loop."));
           #endif
         }
-      // recordTimer.reset();
-      // flags.first_loop = true;
-      // flags.record_playback = true;
+
   }
 
   // Playback the message if the button was pressed but released before the timer was finished.
@@ -530,7 +490,7 @@ void record_message(){
   
   audio.startRecording(file, sample_rate, mic);
   
-  //blink rec led until playback button is released, ending the recording
+  //blink recording LED until playback button is released, ending the recording
   while(digitalRead(message_buttons[which_switch]) == LOW){
     digitalWrite(current_message_LED, LOW);
     delay(500);
@@ -584,7 +544,6 @@ bool transitionS0S1(){
           file_number = 0; 
           current_message_LED = message_LEDs[0];
           flags.switch_scanning = true; // Turn on the switch scanning variable to track that we are switch scanning when we go into the play button transitions.
-          // strcpy(file,file_name[file_number]);
           check_level();
           #ifdef DEBUG
             Serial.println(F("Start switch scanning"));
@@ -601,7 +560,6 @@ bool transitionS0S1(){
 
       else {
         file_number = which_switch;
-        // strcpy(file,file_name[file_number]);
         check_level();
         current_message_LED = message_LEDs[which_switch];
         flags.switch_scanning = false;
@@ -630,8 +588,10 @@ bool transitionS0S1(){
   }
 }
 
+// Transition from waiting to mode to recording mode.
 bool transitionS0S2(){
 
+  // Read the resistor ladder voltage and compare to threshold to change states.
   if(analogRead(mode_ID)<=playback_threshold){
     flags.recording_mode = true;
     return true;
@@ -641,8 +601,10 @@ bool transitionS0S2(){
   }
 }
 
+// Transition from record mode to playback mode.
 bool transitionS2S0(){
 
+  // Check if in recording mode and if the mode switch has been moved (readingo the resistor ladder)
   if(flags.recording_mode && (analogRead(mode_ID)>=playback_threshold)){
 
     flags.recording_mode = false;
@@ -662,6 +624,7 @@ bool transitionS2S0(){
 
 bool transitionS1S0(){
 
+  // Check if a message has finished playing
   if((play_transition[1] == true) && (play_transition[2] == false)){
     #ifdef DEBUG
       Serial.println(F("Playing to waiting transition"));
@@ -714,17 +677,14 @@ bool transitionS3S2(){
 
 }
 
+//--------------------------------------------------------------------------------------------------------------------------
+
+// Body of code
+
 void setup() {
   // put your setup code here, to run once:
   
   Serial.begin(9600);
-
-  // TO DO: Add a timeout because if this isn't connected to a computer it won't work.
-  // #ifdef DEBUG
-  // while (!Serial) {
-  //   // wait for serial port to connect
-  // }
-  // #endif 
 
   //Define pins
   pinMode(message_LEDs[0], OUTPUT);
@@ -741,7 +701,6 @@ void setup() {
   pinMode(mode_ID,INPUT); // Input mode for the analog pin to read the resistor ladder for the mode
   pinMode(level_ID,INPUT); // Input for the analog read pint to read the resistor ladder for the level
   pinMode(speed_ID,INPUT);
-  //audio.CSPin = 10;
   audio.speakerPin = 9;
   audio.volume(5);
   audio.quality(1);
