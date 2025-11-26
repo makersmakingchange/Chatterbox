@@ -108,10 +108,16 @@ const int message_LEDs[4] = {A1, A2, A3, A4}; // Array for the message LED pins 
 
 // Declare variables
 //-----------------------------------------------------------------------------------------
-// Timing variables
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// Variables a user might want adjusted
 const long delay_intervals[3] = {2000, 4000, 6000}; // Set how long the delay is between playbacks, in ms.
 const long blinkInterval = 500; // Set the interval of blinking LEDs, in ms
 unsigned long record_interval = 1000; // Set how long someone has to hold a button to start recording on it, in ms.
+const int volume_value = 5; // Setting volume level, can be 0 to 7. Value of 5 found through trial and error (if set too high the speaker will not play, too low and it won't be audible)
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+// Timing variables
 unsigned long previousMillis = 0; // Variable for timing LED blinking
 unsigned long currentMillis = 0; // Variable for timing LED blinking
 const unsigned long debounce_delay = 50; // Debouncing delay time, in ms
@@ -699,11 +705,11 @@ void setup() {
   pinMode(message_buttons[4],INPUT_PULLUP);
   pinMode(switch_advance_button,INPUT_PULLUP);
   pinMode(mode_ID,INPUT); // Input mode for the analog pin to read the resistor ladder for the mode
-  pinMode(level_ID,INPUT); // Input for the analog read pint to read the resistor ladder for the level
-  pinMode(speed_ID,INPUT);
-  audio.speakerPin = 9;
-  audio.volume(5);
-  audio.quality(1);
+  pinMode(level_ID,INPUT); // Input for the analog read pin to read the resistor ladder for the level
+  pinMode(speed_ID,INPUT); // Input for the analog read pin to read the resistor ladder for the delay between messages
+  audio.speakerPin = 9; // Pin connected to the speaker. This is the main PWM pin used on the Nano that the TRMpcm library states to use
+  audio.volume(volume_value); // Setting volume level, can be 0 to 7. Value of 5 found through trial and error (if set too high the speaker will not play, too low and it won't be audible)
+  audio.quality(1); // Set to 1 to allow 2x oversampling.
 
   //Ensure access to Micro SD Card
 
