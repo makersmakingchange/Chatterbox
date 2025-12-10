@@ -33,25 +33,24 @@
   Message LEDs
   Power slide switch
   Volume potentiometer
-  3.5 mono jack
 
   Microphone and Amp
-    MAX9814        Arduino Uno
+    MAX9814        Seeeduino Nano
       GND -----------> GND
       VDD -----------> 5V 
       Out -----------> A0
 
   Micro SD Breakout Board
-    SD Module       Arduino Uno
+    SD Module       Seeeduinon Nano
       5V  -----------> 5V
       GND -----------> GND
-      CLK -----------> SCK
-      DO  -----------> MI
-      DI  -----------> MO
-      CS  -----------> SS
+      CLK -----------> SCK (D13)
+      DO  -----------> MI (D12)
+      DI  -----------> MO (D11)
+      CS  -----------> SS (D10)
 
   Audio Amp: PAM8302A
-    Amp Module       Arduino Uno
+    Amp Module       Seeeduino Nano
       GND -----------> GND
       Vin -----------> 5V
       SD  -----------> D11
@@ -75,8 +74,8 @@
 
 // Define library variables
 //-----------------------------------------------------------------------------------
-TMRpcm audio;
-File myFile;
+TMRpcm audio; // Set the variable for playing and recording messages
+File myFile; // Set variable for calling the file to play or record
 Neotimer delayTimer; // Set timer for the delay between advancing messages without an input
 Neotimer recordTimer; // Set timer for when to go from just replaying a message to recording it
 
@@ -537,13 +536,14 @@ bool transitionS0S1(){
     which_switch = -1; // Variable to store which switch is pressed
 
     // Step through the buttons to find out which one was pressed
+    // Since there are five potential switches (the four direct access and the switch scanning assitive swtich), i iterates from 0 to 4, and stops at 5.
       for(int i = 0; i < 5; i++){
         if (digitalRead(message_buttons[i]) == LOW){
           which_switch = i;
         }
       }
 
-            // This is for the switch scanning button.
+      // This is for the switch scanning button.
       if (which_switch == 4){
         // If not currently switch scanning, then start at the first message
         if(flags.switch_scanning == false){
@@ -707,9 +707,9 @@ void setup() {
   pinMode(mode_ID,INPUT); // Input mode for the analog pin to read the resistor ladder for the mode
   pinMode(level_ID,INPUT); // Input for the analog read pin to read the resistor ladder for the level
   pinMode(speed_ID,INPUT); // Input for the analog read pin to read the resistor ladder for the delay between messages
-  audio.speakerPin = 9; // Pin connected to the speaker. This is the main PWM pin used on the Nano that the TRMpcm library states to use
+  audio.speakerPin = 9; // Pin connected to the speaker. This is the main PWM pin used on the Nano that the TRMpcm library states to use.
   audio.volume(volume_value); // Setting volume level, can be 0 to 7. Value of 5 found through trial and error (if set too high the speaker will not play, too low and it won't be audible)
-  audio.quality(1); // Set to 1 to allow 2x oversampling.
+  audio.quality(1); // Set to 1 to allow 2x oversampling when recording messages. This affects audio quality, and can be set to 0 for normal sampling if desired.
 
   //Ensure access to Micro SD Card
 
@@ -721,7 +721,7 @@ void setup() {
     #ifdef DEBUG
     Serial.println(F("Initialization failed!"));
     #endif
-    // If the SD card doesn't initialize, blink the LEDs until a reset.
+    // If the SD card doesn't initialize, blink the first two LEDs until a reset.
     while (1){
       digitalWrite(message_LEDs[0], HIGH);
       digitalWrite(message_LEDs[1], HIGH);
