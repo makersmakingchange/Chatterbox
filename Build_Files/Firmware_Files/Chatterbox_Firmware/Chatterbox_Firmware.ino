@@ -88,7 +88,6 @@ State* S1 = play_machine.addState(&play_message); // State for playing a message
 State* S2 = play_machine.addState(&record_waiting); // State for when waiting for an input to record a new message
 State* S3 = play_machine.addState(&record_message); // State for when we're recording a message
 
-// TODO: Use define statements instead of constants to reduce memory. ex: #define CONSTANT_VALUE 2, where 2 is a value
 //Additional Arduino connections
 //----------------------------------------------------------------------------------------
 const int mic {A0}; // Pin connected to the mic
