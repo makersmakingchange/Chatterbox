@@ -1,0 +1,72 @@
+﻿Device:,Chatterbox,,,,,,,,,,,,
+Version:, V1.0.0,,,,,,,,,,,,
+Last Updated:,2025-09-26,,,,,,,,,,,,
+,,,,,,,,Total filament (g),,Unit Cost,Total Estimated Cost,Build Cost,
+,,,,,,,,435,, $135.54 , $166.42 ,,
+ID,Commercial Parts,,,,,,,,, $109.87 , $108.75 ,,
+,Part,Description,Model,Manufacturer,Supplier,QTY / Device,QTY / PKG,PKGs,$/ PKG,$ / Device,Total Estimated Cost,,Link
+,Micro Controller (Seeeduino Nano),,,"Seeed Technology, Ltd.",Digikey,1,1,1, $11.07 , $11.07 , $11.07 ,,https://www.digikey.ca/en/products/detail/seeed-technology-co-ltd/102010268/10290292
+,Audio Amplifier (Pam8302),,,Adafruit Industries LLC,Digikey,1,1,1, $6.13 , $6.13 ,,,https://www.digikey.ca/en/products/detail/adafruit-industries-llc/2130/5761279
+,Mono Speaker (4Ω 3W ),,,Adafruit Industries LLC,Digikey,1,1,1, $6.13 , $6.13 ,,,https://www.digikey.ca/en/products/detail/adafruit-industries-llc/2130/5761279
+,Audio Potentiometer,,,Same Sky (Formerly CUI Devices),Digikey,1,1,1, $2.65 , $2.65 ,,,https://www.digikey.ca/en/products/detail/cui-devices/PTN16-A10125K1A2/20380750
+,Micro SD Reader ,,,Adafruit Industries LLC,Digikey,1,1,1, $10.93 , $10.93 ,,,https://www.digikey.ca/en/products/detail/adafruit-industries-llc/254/5761230
+,Micro SD Card,,,Adafruit Industries LLC,Digikey,1,1,1, $7.69 , $7.69 ,,,https://www.digikey.ca/en/products/detail/adafruit-industries-llc/5252/15841478
+,Microphone (MAX9814),,,Adafruit Industries LLC,Digikey,1,1,1, $12.35 , $12.35 ,,,https://www.digikey.ca/en/products/detail/adafruit-industries-llc/1713/4990777
+,Buttons (B3F-5050),,,Omron Electronics Inc-EMC Div,Digikey,4,1,4, $0.57 , $2.28 ,,,https://www.digikey.ca/en/products/detail/omron-electronics-inc-emc-div/B3F-5050/368377
+,Slide switch (SPST),,,C&K,Digikey,2,1,2, $0.95 , $1.90 ,,,https://www.digikey.ca/en/products/detail/c-k/os102011ma1qs1/1981431
+,3.5 mm Mono Jack,,,Same Sky (Formerly CUI Devices),Digikey,2,1,2, $2.17 , $4.34 ,,,https://www.digikey.ca/en/products/detail/cui-devices/SJ1-3535NG/738699
+,Blue LED,,,Wurth Elektronik,Digikey,4,1,4, $0.37 , $1.48 ,,,https://www.digikey.ca/en/products/detail/w%C3%BCrth-elektronik/151051BS04000/4490009
+,Resistor (2.2k Ω),,,Stackpole Electronics Inc,Digikey,12,1,12, $0.16 , $1.92 ,,,https://www.digikey.ca/en/products/detail/stackpole-electronics-inc/CF18JT2K20/1741619
+,5 pin female header,,,Sullins Connector Solutions,Digikey,2,1,2, $0.55 , $1.10 ,,,https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC051LFBN-RC/807239
+,15 pin female header,,,Sullins Connector Solutions,Digikey,2,1,2, $1.19 , $2.38 ,,,https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC151LFBN-RC/810153
+,"Battery, 9V",,,"Duracell Industrial Corporation, Inc.",Digikey,1,1,1, $7.49 , $7.49 ,,,https://www.digikey.ca/en/products/detail/duracell-industrial-operations-inc/9V/21259959
+,"Capacitor, 10 uF",,FG24X7R1A106KRT06,TDK Corporation,Digikey,3,1,3, $0.50 , $1.50 ,,,https://www.digikey.ca/en/products/detail/tdk-corporation/FG24X7R1A106KRT06/5802984
+,9V Battery Clip,,,Keystone Electronics,Digikey,1,1,1, $0.86 , $0.86 ,,,https://www.digikey.ca/en/products/detail/keystone-electronics/232/303804
+,#4 Sheet Metal Screw,"#4 x 3/8"" pan head, Phillips drive",,Serpac,Digikey,20,1,20, $0.61 , $12.20 ,,,https://www.digikey.ca/en/products/detail/serpac/6005/307599
+,Ribbon Cable,,,Assmann WSW Components,Digikey,1,1,1, $1.63 , $1.63 ,,,https://www.digikey.ca/en/products/detail/assmann-wsw-components/H3DDS-1006G/1218627
+,Ribbon Cable Header,,,Amphenol ICC (FCI),Digikey,2,1,2, $0.79 , $1.58 ,,,https://www.digikey.ca/en/products/detail/amphenol-cs-fci/86130101014345E1LF/7592367
+,Slide switch (SPDT),,,C&K,Digikey,2,1,2, $1.21 , $2.42 ,,,https://www.digikey.ca/en/products/detail/c-k/os103011ma7qp1/1981432
+,24 gauge wire,May be useful to buy two colours,,TE Connectivity Raychem Cable Protection,Digikey,9,10,1, $10.11 , $9.10 ,,,https://www.digikey.ca/en/products/detail/te-connectivity-raychem-cable-protection/55A0111-24-9/2399803
+,8 pin female header,,,Sullins Connector Solutions,Digikey,1,1,1, $0.74 , $0.74 ,,,https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC081LFBN-RC/810147
+,Custom PCB,,,,,,,,, $8.00 , $40.00 ,,
+,Part,Description,,Manufacturer,Supplier,QTY / Device,QTY / PKG,PKGs,$/ PKG,$ / Device,Total Estimated Cost,,Link
+,Main PCB,Main PCB board,,,,1,5,1, $5.00 , $1.00 , $5.00 ,,
+,Secondary PCB,Secondary PCB board,,,,1,5,1, $5.00 , $1.00 , $5.00 ,,
+,LED PCB,Boards for LEDs,,,,4,20,1, $5.00 , $1.00 , $5.00 ,,
+,,Shipping,,,,1,5,1, $25.00 , $5.00 , $25.00 ,,
+,,,,,,,,,,,,,
+,3D Printed Parts,,,,,,,707,, $17.68 , $17.68 ,,
+,Part,Description,Filament Type,Filament,Color,QTY / Device,Mass (g) / Part,Total Mass,$ / kg,$ / Device,Total Estimated Cost,,Link
+,Enclosure Bottom - Left,,PLA,,Any,1,106,106, $25.00 , $2.65 , $2.65 ,,2h49m
+,Enclosure Bottom - Right,,PLA,,Any,1,109,109, $25.00 , $2.73 , $2.73 ,,2h32m
+,Enclosure Top - Left,,PLA,,Any,1,89,89, $25.00 , $2.23 , $2.23 ,,2h17m
+,Enclosure Top - Right,,PLA,,Any,1,86,86, $25.00 , $2.15 , $2.15 ,,2h17m
+,Label Holder,,PLA,,Any,4,19,76, $25.00 , $1.90 , $1.90 ,,31m (each)
+,Button Base,,PLA,,Any,4,26,104, $25.00 , $2.60 , $2.60 ,,41m (each)
+,Button Cap,,PLA,,Any,4,13,52, $25.00 , $1.30 , $1.30 ,,27m (each)
+,Button Insert,,PLA,,Any,4,7,28, $25.00 , $0.70 , $0.70 ,,22m (each)
+,Centre Support,,PLA,,Any,2,24,48, $25.00 , $1.20 , $1.20 ,,49m (each)
+,Volume Knob,,PLA,,Any,1,2,2, $25.00 , $0.05 , $0.05 ,,13m
+,Battery Cover,,PLA,,Any,1,7,7, $25.00 , $0.18 , $0.18 ,,20m
+,,,,,,,,,,,,,
+,Tools,,,,,,,,,,,,
+,Tool,Description,,Manufacturer,Supplier,,,,,,,,Link
+,Soldering Iron,,,,,,,,,,,,
+,60Pb/40Tn Solder Wire,,,,,,,,,,,,
+,Needle Nose Pliers,,,,,,,,,,,,
+,Flush Cutters,,,,,,,,,,,,
+,Wire strippers,,,,,,,,,,,,
+,Desolder Pump (Optional),,,,,,,,,,,,
+,Alternatives,,,,,,,,,,,,
+,Part,Description,,Manufacturer,Supplier,QTY / Device,QTY / PKG,PKGs,$/ PKG,$ / Device,Total Estimated Cost,,Link
+,,,,,,,,,,,,,
+,,,,,,,,,,,,,
+,,,,,,,,,,,,,
+,,,,,,,,,,,,,
+,,,,,,,,,,,,,
+,,,,,,,,,,,,,
+,,,,,,,,,,,,,
+,,,,,,,,,,,,,
+,,,,,,,,,,,,,
+,,,,,,,,,,,,,
+,,,,,,,,,,,,,
