@@ -30,7 +30,7 @@ The Chatterbox is comprised of off-the-shelf electronics and 3D printed parts.
 
 The Chatterbox is open assistive technology (OpenAT). Under the terms of the open source licenses, the device may be built, used, and improved upon by anyone.
 
-The overall cost of materials is about $135.
+The overall cost of materials is about $135 CAD.
 
 <img src="Photos/Chatterbox_Image.jpeg" width="500" alt="Picture of the Chatterbox.">
 
