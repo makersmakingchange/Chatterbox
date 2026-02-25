@@ -129,12 +129,13 @@ Designers:
  - Stephan Dobri
  - Jake McIvor
 
-Feedback providers (TODO: What do we call this? Contributors? That's a specific Git thing):
+Feedback providers:
 - [SpikedCola](https://github.com/SpikedCola)
 
 Testers:
- - <TESTER 1>
- - <TESTER 2>
+ - Surrey School AAC Team
+ - SET-BC
+ - Augmented and Alternative Communication - Interaction and Technology Lab (AAC-IT) at Queen's University
 
 
 ---
