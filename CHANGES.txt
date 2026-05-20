@@ -1,6 +1,6 @@
-Version X.Y.Z | YYYY-mmm-DD
- - Initial Prototype
- - <SUMMARIZE KEY FEATURES>
+Version 1.0.0 | 2026-03-26
+ - Initial release
+
 
 
 
