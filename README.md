@@ -1,23 +1,4 @@
 <!--- Open Source Assistive Technology: GitHub Readme Template Version 1.2 (2024-May-27)  --->
-
-<!--- INSTRUCTIONS --->
-<!--- This is a markdown template for creating the README.md file in a GitHub repository. This file is rendered and displayed automatically when someone visits the repository.
-
-This document includes helper text that will not be displayed when rendered. Any text between the less-than sign + exclamation mark + three hyphen-minus (<!---) and matching three hyphen-minus + greater-than sign will not be displayed. This helper text can be deleted once the corresponding section is completed.
-
-This template has a number of fields that can be searched and replaced with other text:
- - <Device_Name> Replace this with filename-friendly version of the device with underscores. e.g., Open_Wobble_Switch
- - <DeviceName> Replace this with the human-readable name of the device with spaces. e.g., Open Wobble Switch
- - <DesignerName> Replace this with the person or organization responsible for the design. e.g., John Doe.
- - <Repository_Link> Replace this with the web address for the repository. e.g., (e.g., https://github.com/makersmakingchange/Open-Wobble-Switch))
- - <MMCWebLink> This is the website address including an alphanumeric id for the Makers Making Change Website. e.g., 01tJR000000698oYAA. This will come from MMC staff.  
- - <MaterialCost> Replace this with the dollar cost and currency (CAD, USD, etc.) of the materials of the device.
- - <ShippingCost> Replace this with the dollar cost and currency (CAD, USD, etc.) of shipping the device (if possible).
- - <YEAR> year(s) of the copyright
- 
-Any text that is currently holding a space / is an instruction for the person filling in the README is in all capitals, to make it easier to see them in a rendered version.
-
---->
  
 <!--- TITLE --->
 # Chatterbox
@@ -26,16 +7,16 @@ Any text that is currently holding a space / is an instruction for the person fi
 <!--- A brief summary of the project. What it does, who it is for, how much it costs. --->
 The Chatterbox is an Augmented and Alternative Communication (AAC) device that allows users to play pre-recorded messages using single or dual switch scanning. The Chatterbox provides auditory and visual feedback to indicate the message a user can play. 
 
-The Chatterbox is comprised of off-the-shelf electronics and 3D printed parts. 
+The Chatterbox is comprised of off-the-shelf electronics, several custom printed circuit boards, and 3D printed parts. 
 
-The Chatterbox is open assistive technology (OpenAT). Under the terms of the open source licenses, the device may be built, used, and improved upon by anyone.
+The Chatterbox is Open Assistive Technology (OpenAT) and is certified as Open Source Hardware by the Open Source Hardware Association under the OSHWA UID [CA000070](https://certification.oshwa.org/ca000070.html). Under the terms of the open source hardware licenses, the Chatterbox may be built, used, and improved by anyone.  
 
 The overall cost of materials is about $135 CAD.
 
-<img src="Photos/Chatterbox_Image.jpeg" width="500" alt="Picture of the Chatterbox.">
+<img src="Photos/Chatterbox_Labels.png" width="500" alt="The Chatterbox with four labels printed paper labels to represent the messages that could be on each button. The Chatterbox is a green rectangle with four circular buttons, and the label holders are squares on the back at an angle. The printed labels are from left to right: the number one; a child raising their hand; a school bus; and three children singing.">
 
 ## Makers Making Change Assistive Device Library
-<MMCWebLink>
+https://www.makersmakingchange.com/product/chatterbox/01tJR00000CABPtYAP
 
 ## How to Obtain the Device
 ### 1. Do-it-Yourself (DIY) or Do-it-Together (DIT)
@@ -44,7 +25,7 @@ This is an open-source assistive technology, so anyone is free to build it. All 
 
 ### 2. Request a build of this device
 
-You may also submit a build request through the [Makers Making Change Assistive Device Library Listing](<MMCWebLink>) to have a volunteer maker build the device. As the requestor, you are responsible for reimbursing the maker for the cost of materials and any shipping.
+You may also submit a build request through the [Makers Making Change Assistive Device Library Listing](https://www.makersmakingchange.com/product/chatterbox/01tJR00000CABPtYAP) to have a volunteer maker build the device. As the requestor, you are responsible for reimbursing the maker for the cost of materials and any shipping.
 
 ### 3. Build this device for someone else
 
@@ -61,7 +42,7 @@ The [Maker Guide](/Documentation/Chatterbox_Maker_Guide.pdf)  contains all the n
 
 ### 2. Order the Off-The-Shelf Components
 
-The [Bill of Materials](/Documentation/Chatterbox_BOM.xlsx) lists all of the parts and components required to build the device.
+The [Bill of Materials](/Documentation/Chatterbox_BOM.csv) lists all of the parts and components required to build the device.
 
 ### 3. Order the custom PCBS
 
@@ -73,14 +54,13 @@ All of the files and individual print files can be found in the [/Build_Files/3D
 
 ### 5. Assemble the Chatterbox
 
-Reference the Assembly Guide section of the [Maker Guide](/Documentation/Chatterbox_Maker_Guide.pdf) for the tools and steps required to build the device.
+Reference the Assembly Guide section of the [Maker Guide](/Documentation/Chatterbox_Maker_Guide.pdf) for the tools and steps required to build and test the device.
 
 ## How to improve this Device
 As open source assistive technology, you are welcomed and encouraged to improve upon the design. 
 
 ## Files
 ### Documentation
-<!--- Update the name, link, and version for documentation --->
 | Document             | Version | Link |
 |----------------------|---------|------|
 | Design Rationale     | 1.0     | [Chatterbox_Design_Rationale](/Documentation/Chatterbox_Design_Rationale.pdf)     |
@@ -103,12 +83,12 @@ As open source assistive technology, you are welcomed and encouraged to improve 
 
 ## License
 <!--- Add the year(s) for the copyright and the Designer Name. You may use the standard set of open licenses or choose your own for the hardware, software, and accompanying materials. --->
-Copyright (c) 2025, Neil Squire.
+Copyright (c) 2025-2026, Neil Squire.
 
 This repository describes Open Hardware:
  - Everything needed or used to design, make, test, or prepare the Chatterbox is licensed under the [CERN 2.0 Weakly Reciprocal license (CERN-OHL-W v2) or later](https://cern.ch/cern-ohl ) .
  - All software is under the [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl.html).
- - Accompanying material such as instruction manuals, videos, and other copyrightable works that are useful but not necessary to design, make, test, or prepare the <Device-Name> are published under a [Creative Commons Attribution-ShareAlike 4.0 license (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/) .
+ - Accompanying material such as instruction manuals, videos, and other copyrightable works that are useful but not necessary to design, make, test, or prepare the Chatterbox are published under a [Creative Commons Attribution-ShareAlike 4.0 license (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/) .
 
 You may redistribute and modify this documentation and make products using it under the terms of the [CERN-OHL-W v2](https://cern.ch/cern-ohl).
 This documentation is distributed WITHOUT ANY EXPRESS OR IMPLIED WARRANTY, INCLUDING OF MERCHANTABILITY, SATISFACTORY QUALITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -118,10 +98,12 @@ Source Location: [Chatterbox Repository](https://github.com/makersmakingchange/C
 
 ## Attribution
 <!--- Provide any necessary attribution for designs or components that are included in the device or as part of the project. --->
-The device was designed by Stephan Dobri for Neil Squire. It was based on the [Open Playback Recorder](https://github.com/makersmakingchange/Open-Playback-Recorder), from Neil Squire.
+The device was designed by Stephan Dobri for the Neil Squire Society.
+
+The Chatterbox is based on hardware and firmware from the [Open Playback Recorder](https://github.com/makersmakingchange/Open-Playback-Recorder).
 
 <!--- This is the attribution for the template. --->
-The documentation template was created by Makers Making Change / Neil Squire Society and is used under a CC BY-SA 4.0 license. It is available at the following link: [https://github.com/makersmakingchange/OpenAT-Template](https://github.com/makersmakingchange/OpenAT-Template)
+The documentation template was created by Makers Making Change / Neil Squire Society. It is available at the following link: [https://github.com/makersmakingchange/OpenAT-Template](https://github.com/makersmakingchange/OpenAT-Template)
 
 ### Contributors
 <!--- List the names of the people that contributed to the design. This could include the original source of the idea, designers, testers, documenters, etc. --->
@@ -137,7 +119,11 @@ Testers:
  - SET-BC
  - Augmented and Alternative Communication - Interaction and Technology Lab (AAC-IT) at Queen's University
 
+## Open Source Hardware Certification
 
+The Chatterbox has been certified as open source hardware by the Open Source Hardware Association under the OSHWA UID [CA000070](https://certification.oshwa.org/ca000070.html).
+
+<img src="oshwa/certification-mark-CA000070-stacked.png" width = 250 alt="Open Source Hardware Certification Mark for Shrub Hub: CA000070"> 
 ---
 
 <!-- ABOUT MMC START -->
