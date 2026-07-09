@@ -121,7 +121,7 @@ unsigned long currentMillis = 0; // Variable for timing LED blinking
 const unsigned long debounce_delay = 50; // Debouncing delay time, in ms
 
 //File properties
-int file_number =0; // Variable for which file will be recorded or played
+int file_number = 0; // Variable for which file will be recorded or played
 int file_level {1}; // Variable for which level is selected
 int current_message {1}; // Variable to store which message number is being played or recorded
 const int sample_rate {16000}; // Sampling rate for the mic when recording messages
@@ -350,22 +350,22 @@ void play_message(){
 
   while(audio.isPlaying()){
     // Update transition variable.
-    play_transition[1] = play_transition[2];
-    play_transition[2] = audio.isPlaying();
+    play_transition[0] = play_transition[1];
+    play_transition[1] = audio.isPlaying();
 
     // Interrupt playing if another button is pressed, and start playing that message instead.
     if((digitalRead(message_buttons[0]) == LOW) || (digitalRead(message_buttons[1]) == LOW) || (digitalRead(message_buttons[2]) == LOW) || (digitalRead(message_buttons[3]) == LOW)){
       delay(debounce_delay);
-      play_transition[1] = play_transition[2];
-      play_transition[2] = audio.isPlaying();
+      play_transition[0] = play_transition[1];
+      play_transition[1] = audio.isPlaying();
       audio.stopPlayback(); // Stop current audio
     }
     // Interrupt playing if the switch advance button is pressed and advance message
     else if((digitalRead(switch_advance_button) == LOW) && flags.switch_scanning){
       delay(debounce_delay);
       digitalWrite(current_message_LED,LOW);
-      play_transition[1] = play_transition[2];
-      play_transition[2] = audio.isPlaying();
+      play_transition[0] = play_transition[1];
+      play_transition[1] = audio.isPlaying();
       audio.stopPlayback(); // Stop playing message
       while(digitalRead(switch_advance_button) == LOW){
         // wait for the switch to be released
@@ -392,8 +392,8 @@ void play_message(){
             while(digitalRead(switch_scan_button) == LOW){
         // wait for the switch to be released
       }
-      play_transition[1] = play_transition[2];
-      play_transition[2] = audio.isPlaying();
+      play_transition[0] = play_transition[1];
+      play_transition[1] = audio.isPlaying();
       audio.stopPlayback();
       flags.advance_message = true; // Re-use advance message transition here to reduce number of variables
       flags.switch_scanning = false;
@@ -403,11 +403,11 @@ void play_message(){
   }
   digitalWrite(speaker_shutdown, LOW); // Turn the speaker off after a message stops
   digitalWrite(current_message_LED, LOW); // Turn off the LED
-  play_transition[1] = true; // Set first play transition variable in case timing has gone odd.
-  play_transition[2] = audio.isPlaying(); // Check to make sure this transition variable is false.
+  play_transition[0] = true; // Set first play transition variable in case timing has gone odd.
+  play_transition[1] = audio.isPlaying(); // Check to make sure this transition variable is false.
   #ifdef DEBUG
+    Serial.print(play_transition[0]);
     Serial.print(play_transition[1]);
-    Serial.print(play_transition[2]);
     Serial.println(F("Exited playing"));
   #endif
 
@@ -630,11 +630,11 @@ bool transitionS2S0(){
 bool transitionS1S0(){
 
   // Check if a message has finished playing
-  if((play_transition[1] == true) && (play_transition[2] == false)){
+  if((play_transition[0] == true) && (play_transition[1] == false)){
     #ifdef DEBUG
       Serial.println(F("Playing to waiting transition"));
     #endif
-    play_transition[1] = false;
+    play_transition[0] = false;
     return true;
   }
   else{
