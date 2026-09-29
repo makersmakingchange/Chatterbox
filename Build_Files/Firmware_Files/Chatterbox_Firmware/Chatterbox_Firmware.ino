@@ -1,10 +1,11 @@
 /* 
 * File: Chatterbox_Firmware.ino
 * Developed by: MakersMakingChange
-* Version: v1.0 (13 November, 2025)
+* Version: v1.0.1a (2026-09-29)
   License: GPL v3.0 or later
 
   Copyright (C) 2025 Neil Squire Society
+  Copyright (C) 2025-2026 Neil Squire Society
   This program is free software: you can redistribute it and/or modify it under the terms of
   the GNU General Public License as published by the Free Software Foundation,
   either version 3 of the License, or (at your option) any later version.
