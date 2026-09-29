@@ -191,14 +191,18 @@ void blink_all_LEDs(){
 }
 
 // Check and set the level the messages are on
-char check_level(){
+char* check_level(){
 
-  if(analogRead(level_ID) <= threshold[0]){ // Check if resistor ladder reading is below the first threshold value
+  // Read the analog voltage of the resistor ladder
+  int ladder_level = analogRead(level_ID);
+
+  // Infer level based on resistor ladder voltage thresholds and set file name
+  if(ladder_level <= threshold[0]){ // Check if resistor ladder reading is below the first threshold value
     strcpy(file,"rec_1"); // Set the first part of the file variable for being in Level 1
     strcat(file,file_ends[file_number]); // Append the endings of the file numbers
     return file;
   }
-  else if(analogRead(level_ID) >= threshold[1]){ // Check if resistor ladder reading is above the second threshold value
+  else if(ladder_level >= threshold[1]){ // Check if resistor ladder reading is above the second threshold value
     strcpy(file,"rec_3"); // Set the first part of the file variable for being in Level 3
     strcat(file,file_ends[file_number]); // Append the endings of the file numbers
     return file;
