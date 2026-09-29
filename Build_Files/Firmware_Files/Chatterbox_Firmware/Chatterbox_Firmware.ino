@@ -4,7 +4,6 @@
 * Version: v1.0.1a (2026-09-29)
   License: GPL v3.0 or later
 
-  Copyright (C) 2025 Neil Squire Society
   Copyright (C) 2025-2026 Neil Squire Society
   This program is free software: you can redistribute it and/or modify it under the terms of
   the GNU General Public License as published by the Free Software Foundation,
@@ -14,6 +13,7 @@
   See the GNU General Public License for more details.
   You should have received a copy of the GNU General Public License along with this program.
   If not, see <http://www.gnu.org/licenses/>
+
 
   The Chatterbox is an assistive device for augmented and alternative communication (AAC). Users can record messages on each button, 
   then use external switches plugged into 3.5 mm mono jacks to switch scan through the message options. There are also holders for 
@@ -51,7 +51,7 @@
       Vin -----------> 5V
       SD  -----------> D11
       A-  -----------> GND 
-      A+  -----------> D9 (Through Vol Pot)
+      A+  -----------> D9 (Through Volume Potentiometer)
       +   -----------> Speaker postive
       -   -----------> Speaker negitive
   
@@ -109,6 +109,8 @@ const long delay_intervals[3] = {2000, 4000, 6000}; // Set how long the delay is
 const long blinkInterval = 500; // Set the interval of blinking LEDs, in ms
 unsigned long record_interval = 1000; // Set how long someone has to hold a button to start recording on it, in ms.
 const int volume_value = 5; // Setting volume level, can be 0 to 7. Value of 5 found through trial and error (if set too high the speaker will not play, too low and it won't be audible)
+const int volume_playback = 5; // volume for message playback
+const int volume_scanning = 3; // volume for scanning playback
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 // Timing variables
@@ -326,8 +328,6 @@ void play_message(){
     // Wait for switch to be released
   }
 
-  digitalWrite(current_message_LED, HIGH); // Turn the LED on
-  digitalWrite(speaker_shutdown, HIGH); // Turn speaker on
 
   #ifdef DEBUG
     Serial.print(F("File: "));
@@ -341,7 +341,21 @@ void play_message(){
     Serial.println(freeMemory());
   #endif
 
-  audio.play(file); // Start playing the file. The file is defined in the transition to this state.
+
+// Adjust playback volume based on whether scanning or playing selected message
+  if (flags.switch_scanning == true){
+    audio.volume(volume_scanning); // 
+  }
+  else {
+    audio.volume(volume_playback);
+  }
+
+// Display visual feedback to user and enable speaker
+  digitalWrite(current_message_LED, HIGH); // Turn the LED on
+  digitalWrite(speaker_shutdown, HIGH); // Turn speaker on
+
+// Start playing the file. The file is defined in the transition to this state.
+  audio.play(file); 
 
   #ifdef DEBUG
     Serial.print(F("Free memory while playing: "));
