@@ -15,14 +15,9 @@
   You should have received a copy of the GNU General Public License along with this program.
   If not, see <http://www.gnu.org/licenses/>
 
-<<<<<<<< HEAD:Build_Files/Firmware_Files/Chatterbox_Firmware/Chatterbox_Firmware.ino
   The Chatterbox is an assistive device for augmented and alternative communication (AAC). Users can record messages on each button, 
   then use external switches plugged into 3.5 mm mono jacks to switch scan through the message options. There are also holders for 
   images that a user can place behind each button to represent the message recorded on that button.
-========
-
-  November 13, 2025
-  Stephan Dobri
 
   Components:
 
